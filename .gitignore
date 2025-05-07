@@ -1,0 +1,36 @@
+# ASP.NET Core
+bin/
+obj/
+Migrations/          
+*.csproj.user
+*.suo
+*.user
+*.sln.docstates
+appsettings.json
+appsettings.*.json
+wwwroot/
+.vs/
+*.log
+*.sqlite
+*.db
+
+# Angular
+node_modules/
+dist/
+.angular/
+*.log
+npm-debug.log
+yarn-error.log
+.cache/
+
+# Environment files
+.env
+*.env.*
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
