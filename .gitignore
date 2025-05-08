@@ -1,27 +1,27 @@
 # ASP.NET Core
-bin/
-obj/
-Migrations/          
+Backend/bin/
+Backend/obj/
+Backend/Migrations/        # Ignore EF Core migrations
 *.csproj.user
 *.suo
 *.user
 *.sln.docstates
-appsettings.json
-appsettings.*.json
-wwwroot/
+Backend/appsettings.json
+Backend/appsettings.*.json
+Backend/wwwroot/
 .vs/
 *.log
 *.sqlite
 *.db
 
 # Angular
-node_modules/
-dist/
-.angular/
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
 *.log
 npm-debug.log
 yarn-error.log
-.cache/
+frontend/.cache/
 
 # Environment files
 .env

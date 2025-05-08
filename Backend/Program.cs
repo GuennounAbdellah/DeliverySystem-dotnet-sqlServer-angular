@@ -1,10 +1,10 @@
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
-//using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using DeliveryApp.Data;
+using Backend.Data;
+using Backend.Middleware;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-//using WebApi.Services;
-//using WebApi.Data;
+using Backend.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,31 +32,30 @@ builder.Services.AddCors(options =>
 var secret = builder.Configuration["AppSettings:Secret"] ?? throw new InvalidOperationException("JWT secret not configured");
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not configured");
 
-// Configure JWT Authentication
-// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-//     .AddJwtBearer(options =>
-//     {
-//         options.TokenValidationParameters = new TokenValidationParameters
-//         {
-//             ValidateIssuerSigningKey = true,
-//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)),
-//             ValidateIssuer = false,
-//             ValidateAudience = false,
-//             ClockSkew = TimeSpan.Zero
-//         };
-//     });
-// Register services
-// builder.Services.AddScoped<IUserService, UserService>();
+//Configure JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secret)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+//Register services
+builder.Services.AddScoped<IUserService, UserService>();
 // builder.Services.AddScoped<IClientService, ClientService>();
 // builder.Services.AddScoped<IArticleService, ArticleService>();
 //builder.Services.AddScoped<ILivraisonService, LivraisonService>();
-
 // Register DbContext for EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 var app  = builder.Build();
-
+app.UseErrorHandling();
 
 
 app.UseHttpsRedirection();

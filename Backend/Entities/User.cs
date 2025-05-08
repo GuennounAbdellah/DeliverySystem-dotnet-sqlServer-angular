@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace WebApi.Entities
+namespace Backend.Entities
 {
        public class User
     {
