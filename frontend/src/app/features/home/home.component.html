@@ -1,0 +1,56 @@
+<div class="home-container">
+    <main>
+      <div class="content">
+        <section class="main-section">
+          <h2>Bienvenue chez Groupe IT</h2>
+          <p>Entrez vos identifiants pour accéder au système</p>
+        </section>
+        
+        <section class="login-section">
+          <div class="login-card">
+            <h2>Connexion</h2>
+            
+            <div *ngIf="error" class="error-message alert">
+              {{ error }}
+            </div>
+            
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+              <!-- Username -->
+              <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input 
+                  type="text" 
+                  id="username" 
+                  formControlName="username" 
+                  placeholder="Enter username">
+                <div class="error" *ngIf="submitted && f['username'].errors?.['required']">
+                  Le nom d'utilisateur est requis
+                </div>
+              </div>
+              
+              <!-- Password -->
+              <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input 
+                  type="password" 
+                  id="password" 
+                  formControlName="password" 
+                  placeholder="Enter password">
+                <div class="error" *ngIf="submitted && f['password'].errors?.['required']">
+                  Le mot de passe est requis
+                </div>
+              </div>
+              <button type="submit" [disabled]="loading" class="login-button">
+                <span *ngIf="loading">Connexion en cours ...</span>
+                <span *ngIf="!loading">Connexion</span>
+              </button>
+            </form>
+          </div>
+        </section>
+      </div>
+    </main>
+    
+    <footer>
+      <p>© 2025 Groupe IT</p>
+    </footer>
+  </div>
