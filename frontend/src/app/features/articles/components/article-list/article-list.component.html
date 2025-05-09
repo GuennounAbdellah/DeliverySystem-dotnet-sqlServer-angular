@@ -1,0 +1,56 @@
+<app-layout>
+  <div class="articles-container">
+    <div class="header">
+      <h1>Articles Management</h1>
+      <button class="add-button" (click)="openAddArticleDialog()">
+        Ajouter Article
+      </button>
+    </div>
+    
+    <div *ngIf="loading" class="loading">Loading articles...</div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="articles-table-container" *ngIf="!loading && !error">
+      <table class="articles-table" *ngIf="articles.length > 0">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Désignation</th>
+            <th>Stock</th>
+            <th>Stock min</th>
+            <th>Unité</th>
+            <th>Famille</th>
+            <th>Prix unitaire HT</th>
+            <th>Montant HT</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let article of articles">
+            <td>{{ article.reference }}</td>
+            <td>{{ article.designation }}</td>
+            <td>{{ article.stock }}</td>
+            <td>{{ article.stock_Minimum }}</td>
+            <td>{{ article.unite.abreviation }}</td>
+            <td>{{ article.famille.nom }}</td>
+            <td>{{ article.puHt }}</td>
+            <td>{{ article.montantHt }}</td>
+            <td>
+              <button class="edit-btn" (click)="articleDialog.openEdit(article)">Modifier</button>
+              <button class="delete-btn" (click)="deleteArticle(article.id)">Suprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="no-articles" *ngIf="articles.length === 0">
+        No articles found.
+      </div>
+    </div>
+  </div>
+  
+  <app-article-dialog (articleAdded)="loadArticles()" (articleUpdated)="loadArticles()"></app-article-dialog>
+</app-layout>

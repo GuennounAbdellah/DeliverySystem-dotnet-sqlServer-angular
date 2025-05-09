@@ -10,6 +10,23 @@ export const routes: Routes = [
         path: 'dashboard', 
         loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent) 
     },
+    
+    {
+        path: 'clients',
+        loadChildren: () => import('./features/clients/clients.routes').then(m => m.CLIENTS_ROUTES)
+    },
+    {
+        path: 'familles',
+        loadChildren: () => import('./features/familles/familles.routes').then(m => m.FAMILLES_ROUTES)
+    }, 
+    {
+        path: 'unites',
+        loadChildren: () => import('./features/unites/unites.routes').then(m => m.UNITES_ROUTES)
+    },
+    {
+        path: 'articles',
+        loadChildren: () => import('./features/articles/articles.routes').then(m => m.ARTICLES_ROUTES)
+    },
     {
         path: '**', 
         redirectTo: '' 

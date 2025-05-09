@@ -11,7 +11,7 @@ public class Article
         public required string Reference { get; set; }
         public required string Designation { get; set; }
         public int Stock { get; set; }
-        public int Stock_Minimum { get; set; }
+        public int Stock_Minimum { get; set; } = 0;
 
         [ForeignKey(nameof(Unite))]
         public Guid UniteId { get; set; }

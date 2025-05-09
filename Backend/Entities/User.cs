@@ -9,7 +9,7 @@ namespace Backend.Entities
         public Guid Id { get; set; }
         public required string Username { get; set; }
         [JsonIgnore]
-        public required string PasswordHash { get; set; }
+        public  string PasswordHash { get; set; } = "";
         public bool IsAdmin { get; set; }
 
         public virtual ICollection<RolesUser> RolesUsers { get; set; } = new List<RolesUser>();

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend.Entities
     {
@@ -9,6 +10,7 @@ namespace Backend.Entities
         public required string Nom { get; set; }
         public int Tva { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<Article> Articles { get; set; } = new List<Article>();
     }
 }

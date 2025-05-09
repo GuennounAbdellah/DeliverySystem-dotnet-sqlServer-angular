@@ -1,0 +1,71 @@
+<div class="dialog-overlay" *ngIf="showDialog" (click)="close()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h2>{{ editMode ? 'Edit Article' : 'Add New Article' }}</h2>
+      <button class="close-button" (click)="close()">×</button>
+    </div>
+    
+    <div class="dialog-content">
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+      
+      <div *ngIf="loadingLists" class="loading-message">
+        Loading data...
+      </div>
+      
+      <div class="form-group">
+        <label for="reference">Référence</label>
+        <input type="text" id="reference" [(ngModel)]="article.reference" placeholder="Enter article reference">
+      </div>
+      
+      <div class="form-group">
+        <label for="designation">Désignation</label>
+        <input type="text" id="designation" [(ngModel)]="article.designation" placeholder="Enter article designation">
+      </div>
+      
+      <div class="form-group">
+        <label for="stock">Stock</label>
+        <input type="number" id="stock" [(ngModel)]="article.stock" placeholder="Enter stock quantity">
+      </div>
+
+      <div class="form-group">
+        <label for="stockMin">Stock minimum</label>
+        <input type="number" id="stockMin" [(ngModel)]="article.stock_Minimum" placeholder="Enter minimum stock">
+      </div>
+            
+      <div class="form-group">
+        <label for="unite">Unité</label>
+        <select id="unite" [(ngModel)]="article.uniteId">
+          <option value="" disabled>Select an unite</option>
+          <option *ngFor="let unite of unites" [value]="unite.id">{{ unite.nom }} ({{ unite.abreviation }})</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="famille">Famille</label>
+        <select id="famille" [(ngModel)]="article.familleId">
+          <option value="" disabled>Select a famille</option>
+          <option *ngFor="let famille of familles" [value]="famille.id">{{ famille.nom }}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="puHt">Prix unitaire HT</label>
+        <input type="number" id="puHt" [(ngModel)]="article.puHt" step="0.01" placeholder="Enter unit price">
+      </div>
+      
+      <div class="form-group">
+        <label for="montantHt">Montant HT</label>
+        <input type="number" id="montantHt" [(ngModel)]="article.montantHt" step="0.01" placeholder="Enter amount">
+      </div>
+    </div>
+    
+    <div class="dialog-footer">
+      <button class="cancel-button" (click)="close()">Cancel</button>
+      <button class="submit-button" (click)="submit()">
+        {{ editMode ? 'Update Article' : 'Add Article' }}
+      </button>
+    </div>
+  </div>
+</div>

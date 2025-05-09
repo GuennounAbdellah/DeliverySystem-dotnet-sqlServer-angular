@@ -1,0 +1,44 @@
+<app-layout>
+  <div class="familles-container">
+    <div class="header">
+      <h1>Familles Management</h1>
+      <button class="add-button" (click)="openAddFamilleDialog()">
+        Ajouter Famille
+      </button>
+    </div>
+    
+    <div *ngIf="loading" class="loading">Loading familles...</div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="familles-table-container" *ngIf="!loading && !error">
+      <table class="familles-table" *ngIf="familles.length > 0">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>TVA (%)</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let famille of familles">
+            <td>{{ famille.nom }}</td>
+            <td>{{ famille.tva }}</td>
+            <td>
+              <button class="edit-btn" (click)="familleDialog.openEdit(famille)">Modifier</button>
+              <button class="delete-btn" (click)="deleteFamille(famille.id)">Suprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="no-familles" *ngIf="familles.length === 0">
+        No familles found.
+      </div>
+    </div>
+  </div>
+  
+  <app-famille-dialog (familleAdded)="loadFamilles()" (familleUpdated)="loadFamilles()"></app-famille-dialog>
+</app-layout>

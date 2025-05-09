@@ -47,8 +47,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 //Register services
 builder.Services.AddScoped<IUserService, UserService>();
-// builder.Services.AddScoped<IClientService, ClientService>();
-// builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IFamilleService, FamilleService>();
+builder.Services.AddScoped<IUniteService, UniteService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
 //builder.Services.AddScoped<ILivraisonService, LivraisonService>();
 // Register DbContext for EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>

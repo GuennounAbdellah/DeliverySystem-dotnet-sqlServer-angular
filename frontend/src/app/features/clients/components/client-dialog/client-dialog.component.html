@@ -1,0 +1,41 @@
+<div class="dialog-overlay" *ngIf="showDialog" (click)="close()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h2>{{ editMode ? 'Edit Client' : 'Add New Client' }}</h2>
+      <button class="close-button" (click)="close()">×</button>
+    </div>
+    
+    <div class="dialog-content">
+      <div *ngIf="error" class="error-message">
+        {{ error }}
+      </div>
+      
+      <div class="form-group">
+        <label for="nom">Name</label>
+        <input type="text" id="nom" [(ngModel)]="client.nom" placeholder="Enter client name">
+      </div>
+      
+      <div class="form-group">
+        <label for="telephone">Phone</label>
+        <input type="text" id="telephone" [(ngModel)]="client.telephone" placeholder="Enter phone number">
+      </div>
+
+      <div class="form-group">
+        <label for="fax">Fax</label>
+        <input type="text" id="fax" [(ngModel)]="client.fax" placeholder="Enter fax">
+      </div>
+      
+      <div class="form-group">
+        <label for="adresse">Address</label>
+        <textarea id="adresse" [(ngModel)]="client.adresse" placeholder="Enter address"></textarea>
+      </div>
+    </div>
+    
+    <div class="dialog-footer">
+      <button class="cancel-button" (click)="close()">Cancel</button>
+      <button class="submit-button" (click)="submit()">
+        {{ editMode ? 'Update Client' : 'Add Client' }}
+      </button>
+    </div>
+  </div>
+</div>

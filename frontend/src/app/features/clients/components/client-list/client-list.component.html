@@ -1,0 +1,50 @@
+<app-layout>
+  <div class="clients-container">
+    <div class="header">
+      <h1>Clients Management</h1>
+      <!-- Only show Add button for admins -->
+      <button  class="add-button" (click)="openAddClientDialog()">
+        Ajouter Client
+      </button>
+    </div>
+    
+    <div *ngIf="loading" class="loading">Loading clients...</div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="clients-table-container" *ngIf="!loading && !error">
+      <table class="clients-table" *ngIf="clients.length > 0">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Téléphone</th>
+            <th>Fax</th>
+            <th>Addresse</th>
+            <!-- Only show Actions column for admins -->
+            <th >Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let client of clients">
+            <td>{{ client.nom }}</td>
+            <td>{{ client.telephone }}</td>
+            <td>{{ client.fax }}</td>
+            <td>{{ client.adresse }}</td>
+            <td >
+              <button class="edit-btn" (click)="clientDialog.openEdit(client)">Modifier</button>
+              <button class="delete-btn" (click)="deleteClient(client.id)">Suprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="no-clients" *ngIf="clients.length === 0">
+        No clients found.
+      </div>
+    </div>
+  </div>
+  
+  <app-client-dialog (clientAdded)="loadClients()" (clientUpdated)="loadClients()"></app-client-dialog>
+</app-layout>

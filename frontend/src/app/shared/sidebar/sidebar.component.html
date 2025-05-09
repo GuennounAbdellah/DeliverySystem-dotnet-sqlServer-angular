@@ -1,0 +1,66 @@
+<div class="sidebar">
+  <div class="logo">
+    <h2>Groupe IT</h2>
+  </div>
+  <nav>
+    <ul>
+      <li>
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <i class="fas fa-tachometer-alt"></i>
+          <span>Tableau de bord</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/clients" routerLinkActive="active">
+          <i class="fas fa-users"></i>
+          <span>Clients</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/articles" routerLinkActive="active">
+          <i class="fas fa-boxes"></i>
+          <span>Articles</span>
+        </a>
+      </li> 
+      <li>
+        <a routerLink="/unites" routerLinkActive="active">
+          <i class="fas fa-ruler"></i>
+          <span>Unités</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/familles" routerLinkActive="active">
+          <i class="fas fa-sitemap"></i>
+          <span>Familles</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/livraisons" routerLinkActive="active">
+          <i class="fas fa-truck"></i>
+          <span>Livraisons</span>
+        </a>
+      </li>
+      <li>
+        <a routerLink="/users" routerLinkActive="active">
+          <i class="fas fa-user-cog"></i>
+          <span>Utilisateurs</span>
+        </a>
+      </li>
+      <li class="logout">
+        <a (click)="logout()">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Déconnexion</span>
+        </a>
+      </li>
+      <div *ngIf="showLogoutConfirmation" class="logout-confirmation-overlay">
+        <div class="logout-confirmation-dialog">
+          <p>Vous êtes sûr de vouloir vous déconnecter ?</p>
+          <div class="dialog-buttons">
+            <button (click)="confirmLogout()" class="confirm-button">Oui</button>
+            <button (click)="cancelLogout()" class="cancel-button">Non</button>
+          </div>
+        </div>
+      </div>
+    </ul>
+  </nav>
+</div>
