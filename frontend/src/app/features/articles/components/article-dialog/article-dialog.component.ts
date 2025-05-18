@@ -5,11 +5,12 @@ import { Article, ArticleCreateRequest } from '../../../../core/models/article.m
 import { ArticleService } from '../../services/article.service';
 import { Unite } from '../../../../core/models/unite.model';
 import { Famille } from '../../../../core/models/famille.model';
+import {TextFormatterDirective} from '../../../../shared/directives/text-formatter.directive';
 
 @Component({
   selector: 'app-article-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TextFormatterDirective],
   templateUrl: './article-dialog.component.html',
   styleUrls: ['./article-dialog.component.css']
 })
@@ -131,6 +132,7 @@ export class ArticleDialogComponent implements OnInit {
       const articleToUpdate = this.article as ArticleCreateRequest;
       this.articleService.updateArticle(this.originalArticleId, articleToUpdate).subscribe({
         next: (updatedArticle) => {
+          console.log(updatedArticle)
           this.close();
           this.articleUpdated.emit(updatedArticle);
         },

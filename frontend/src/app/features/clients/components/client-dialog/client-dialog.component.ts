@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Client, ClientCreateRequest } from '../../../../core/models/client.model';
 import { ClientService } from '../../services/client.service';
-
+import { TextFormatterDirective } from '../../../../shared/directives/text-formatter.directive';
 @Component({
   selector: 'app-client-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TextFormatterDirective],
   templateUrl: './client-dialog.component.html',
   styleUrls: ['./client-dialog.component.css']
 })

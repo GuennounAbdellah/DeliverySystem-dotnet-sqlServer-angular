@@ -13,6 +13,8 @@ namespace Backend.Entities
         public bool IsAdmin { get; set; }
 
         public virtual ICollection<RolesUser> RolesUsers { get; set; } = new List<RolesUser>();
+
+        [JsonIgnore]
         public virtual ICollection<Livraison> Livraisons { get; set; } = new List<Livraison>();
         public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
     }

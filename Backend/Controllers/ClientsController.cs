@@ -7,7 +7,6 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ClientsController : ControllerBase
     {
         private readonly IClientService _clientService;

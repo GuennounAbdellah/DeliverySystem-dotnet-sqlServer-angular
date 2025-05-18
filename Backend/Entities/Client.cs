@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend.Entities
 {
@@ -11,6 +12,7 @@ namespace Backend.Entities
         public string Fax { get; set; } ="";
         public string Adresse { get; set; }="";
 
+        [JsonIgnore]
         public virtual ICollection<Livraison> Livraisons { get; set; } = new List<Livraison>();
     }
 }

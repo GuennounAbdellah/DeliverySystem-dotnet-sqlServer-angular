@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Famille, FamilleCreateRequest } from '../../../../core/models/famille.model';
 import { FamilleService } from '../../services/famille.service';
-
+import { TextFormatterDirective } from '../../../../shared/directives/text-formatter.directive';
 @Component({
   selector: 'app-famille-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule , TextFormatterDirective],
   templateUrl: './famille-dialog.component.html',
   styleUrls: ['./famille-dialog.component.css']
 })

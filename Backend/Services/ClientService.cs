@@ -43,6 +43,11 @@ namespace Backend.Services
         {
             if (string.IsNullOrEmpty(client.Nom))
                 throw new ApplicationException("Client name is required.");
+            
+            var existingClient = await _context.Clients
+                .FirstOrDefaultAsync(c => c.Nom == client.Nom && c.Telephone == client.Telephone);
+            if (existingClient != null)
+                throw new ApplicationException("Client with the same name and phone number already exists.");
 
             client.Id = Guid.NewGuid();
             

@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { isPlatformBrowser } from "@angular/common";
 import { BehaviorSubject, Observable, tap } from "rxjs";
+import { User } from "../models/user.model";
 
 export interface AuthRequest {
     username: string;
@@ -62,12 +63,17 @@ export class AuthService {
         }
         return false;
       }
-
     getCurrentUser(): AuthResponse | null {
-        return this.currentUserSubject.value;
-    }
+        if (this.isBrowser) {
+          const user = localStorage.getItem('currentUser');
+          return user ? JSON.parse(user) : null;
+        }
+        return null; 
+      }
+
+
     getToken(): string | null {
         const currentUser = this.getCurrentUser();
         return currentUser ? currentUser.token : null;
-      }
+    }
 }

@@ -23,6 +23,7 @@ namespace Backend.Controllers
             try
             {
                 var unites = await _uniteService.GetAllUnites();
+
                 return Ok(unites);
             }
             catch (Exception)

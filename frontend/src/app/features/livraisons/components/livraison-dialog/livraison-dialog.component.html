@@ -1,0 +1,124 @@
+<div class="dialog-overlay" *ngIf="showDialog">
+  <div class="dialog-container">
+    <div class="dialog-header">
+      <h2>{{ editMode ? 'Edit Livraison' : 'Add New Livraison' }}</h2>
+      <button class="close-button" (click)="close()">&times;</button>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="dialog-content">
+
+      <div class="top">
+
+        <div class="top-right">
+
+          <div class="form-group">
+            <label for="client">Client</label>
+            <select id="client" [(ngModel)]="livraison.clientId">
+              <option value="">Select Client</option>
+              <option *ngFor="let client of clients" [value]="client.id">{{ client.nom }}</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="info">Info</label>
+            <textarea id="info" [(ngModel)]="livraison.info" placeholder="Enter info"></textarea>
+          </div>
+          
+        </div>
+        <div class="top-left">
+
+          <div class="form-group">
+            <label for="numero">Numero</label>
+            <input type="text" id="numero" [(ngModel)]="livraison.numero" placeholder="Enter numero">
+          </div>
+
+          <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" [(ngModel)]="livraison.date" [ngModel]="livraison.date | date:'yyyy-MM-dd'">
+          </div>
+          <div class="form-group">
+            <div class="mode-options">
+              <label>Mode remplissage : </label>
+              <div class="mode-option">
+                <input type="radio" id="HT" name="fillMode" [(ngModel)]="isHT" [value]= "true" >
+                <label for="HT">HT</label>
+              </div>
+              <div class="mode-option">
+                <input type="radio" id="TTC" name="fillMode" [(ngModel)]="isHT" [value]="false"> 
+                <label for="TTC">TTC</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+      <div class="details-section">
+        <h3>Detail Livraisons</h3>
+        
+        <div class="add-detail-form">
+          <select [(ngModel)]="selectedArticleId">
+            <option value="">Select Article</option>
+            <option *ngFor="let article of articles" [value]="article.id">{{ article.designation }}</option>
+          </select>
+          <button (click)="addDetailLivraison()">Add</button>
+        </div>
+        
+        <table class="details-table">
+          <thead>
+            <tr>
+              <th>N°</th>
+              <th>Référnce</th>
+              <th>Désignation</th>
+              <th>Quantité</th>
+              <th>Unité</th>
+              <th>{{ isHT ? "PU HT Brut" : "PU TTC Brut"}}</th>
+              <th>{{ isHT ? "Remise HT":"Remise TTC"}}</th>
+              <th>{{ isHT ? "PU HT Remisé":"PU TTC Remisé"}}</th>
+              <th>{{ isHT ? "Montant HT":"Montant TCC"}}</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let detail of details; let i = index">
+              <td>{{ detail.numero }}</td>
+              <td>{{ detail.article?.reference }}</td>
+              <td><input type="text" [(ngModel)]="detail.designation" value="{{detail.article?.designation}}"></td>
+              <td><input type="number" [(ngModel)]="detail.quantite" value="0" ></td>
+              <td>{{ detail.article?.unite?.abreviation}}</td>
+              
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="total-label">Total HT:</td>
+              <td colspan="3">{{ livraison.totalHt | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="total-label">Total TVA:</td>
+              <td colspan="3">{{ livraison.totalTva | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="total-label">Escompte:</td>
+              <td colspan="3">{{ livraison.escompte | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="total-label">Total TTC:</td>
+              <td colspan="3">{{ livraison.totalTtc | number:'1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    
+    <div class="dialog-footer">
+      <button class="cancel-button" (click)="close()">Cancel</button>
+      <button class="submit-button" (click)="submit()">
+        {{ editMode ? 'Update Livraison' : 'Add Livraison' }}
+      </button>
+    </div>
+  </div>
+</div>

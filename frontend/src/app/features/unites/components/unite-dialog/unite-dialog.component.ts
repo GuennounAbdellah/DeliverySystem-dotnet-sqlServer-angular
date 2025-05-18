@@ -3,11 +3,11 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Unite, UniteCreateRequest } from '../../../../core/models/unite.model';
 import { UniteService } from '../../services/unite.service';
-
+import { TextFormatterDirective } from '../../../../shared/directives/text-formatter.directive';
 @Component({
   selector: 'app-unite-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule , TextFormatterDirective],
   templateUrl: './unite-dialog.component.html',
   styleUrls: ['./unite-dialog.component.css']
 })

@@ -51,7 +51,7 @@ builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IFamilleService, FamilleService>();
 builder.Services.AddScoped<IUniteService, UniteService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
-//builder.Services.AddScoped<ILivraisonService, LivraisonService>();
+builder.Services.AddScoped<ILivraisonService, LivraisonService>();
 // Register DbContext for EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
@@ -68,8 +68,5 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-Console.WriteLine("\n\nStarting application...\n");
-Console.WriteLine($"Connection string: {connectionString}\n");
-Console.WriteLine("Application started successfully.\n");
-Console.WriteLine("Listening for requests on: http://localhost:5143\n");
+
 app.Run();

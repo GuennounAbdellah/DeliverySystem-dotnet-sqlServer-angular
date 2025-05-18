@@ -13,6 +13,7 @@ Backend/wwwroot/
 *.log
 *.sqlite
 *.db
+*.json
 
 # Angular
 frontend/node_modules/

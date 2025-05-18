@@ -52,6 +52,11 @@ namespace Backend.Services
             if (string.IsNullOrEmpty(articleRequest.Designation))
                 throw new ApplicationException("Article designation is required.");
 
+            var existingArticle = await _context.Articles
+                .FirstOrDefaultAsync(a => a.Reference == articleRequest.Reference);
+            if (existingArticle != null)
+                throw new ApplicationException("Article with the same reference exists.");
+
             // Verify that Unite exists
             var unite = await _context.Unites.FindAsync(articleRequest.UniteId);
             if (unite == null)

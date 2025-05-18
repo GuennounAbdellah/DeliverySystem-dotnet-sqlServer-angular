@@ -1,0 +1,50 @@
+<app-layout>
+  <div class="livraisons-container">
+    <div class="header">
+      <h1>Livraisons Management</h1>
+      <button class="add-button" (click)="openAddLivraisonDialog()">
+        Ajouter Livraison
+      </button>
+    </div>
+    
+    <div *ngIf="loading" class="loading">Loading livraisons...</div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="livraisons-table-container" *ngIf="!loading && !error">
+      <table class="livraisons-table" *ngIf="livraisons.length > 0">
+        <thead>
+          <tr>
+            <th>Numero</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Total HT</th>
+            <th>Total TTC</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let livraison of livraisons">
+            <td>{{ livraison.numero }}</td>
+            <td>{{ livraison.client?.nom }}</td>
+            <td>{{ livraison.date | date:'dd/MM/yyyy' }}</td>
+            <td>{{ livraison.totalHt }}</td>
+            <td>{{ livraison.totalTtc}}</td>
+            <td>
+              <button class="edit-btn" (click)="livraisonDialog.openEdit(livraison)">Modifier</button>
+              <button class="delete-btn" (click)="livraison.id && deleteLivraison(livraison.id)">Suprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="no-livraisons" *ngIf="livraisons.length === 0">
+        No livraisons found.
+      </div>
+    </div>
+  </div>
+  
+  <app-livraison-dialog (livraisonAdded)="loadLivraisons()" (livraisonUpdated)="loadLivraisons()"></app-livraison-dialog>
+</app-layout>
