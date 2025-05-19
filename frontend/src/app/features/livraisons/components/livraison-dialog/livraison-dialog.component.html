@@ -76,7 +76,7 @@
               <th>Quantité</th>
               <th>Unité</th>
               <th>{{ isHT ? "PU HT Brut" : "PU TTC Brut"}}</th>
-              <th>{{ isHT ? "Remise HT":"Remise TTC"}}</th>
+              <th>{{ isHT ? "Remise HT(%)":"Remise TTC(%)"}}</th>
               <th>{{ isHT ? "PU HT Remisé":"PU TTC Remisé"}}</th>
               <th>{{ isHT ? "Montant HT":"Montant TCC"}}</th>
               <th>Actions</th>
@@ -87,9 +87,35 @@
               <td>{{ detail.numero }}</td>
               <td>{{ detail.article?.reference }}</td>
               <td><input type="text" [(ngModel)]="detail.designation" value="{{detail.article?.designation}}"></td>
-              <td><input type="number" [(ngModel)]="detail.quantite" value="0" ></td>
+              <td><input type="number" [(ngModel)]="detail.quantite" min="1" (input)="updateCalculations()"></td>
               <td>{{ detail.article?.unite?.abreviation}}</td>
               
+              <!-- Conditionally render input fields based on isHT flag -->
+              <td>
+                <input type="number" *ngIf="isHT" [(ngModel)]="detail.puHt" (input)="updateCalculations()" step="0.01">
+                <input type="number" *ngIf="!isHT" [(ngModel)]="detail.puTtc" (input)="updateCalculations()" step="0.01">
+              </td>
+
+              <td>
+                <input type="number" *ngIf="isHT" [(ngModel)]="detail.remiseHt" (input)="updateCalculations()" min="0" max="100" step="0.01">
+                <input type="number" *ngIf="!isHT" [(ngModel)]="detail.remiseTtc" (input)="updateCalculations()" min="0" max="100" step="0.01">
+              </td>
+              
+              <td>
+                <span *ngIf="isHT">{{ detail.puHtRemise | number:'1.2-2' }}</span>
+                <span *ngIf="!isHT">{{ detail.puTtcRemise | number:'1.2-2' }}</span>
+              </td>
+
+              <td>
+                <span *ngIf="isHT">{{ detail.montantHt | number:'1.2-2' }}</span>
+                <span *ngIf="!isHT">{{ detail.montantTtc | number:'1.2-2' }}</span>
+              </td>
+              
+              <td>
+                <button type="button" (click)="removeDetailLivraison(i)" class="btn btn-danger btn-sm">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
             </tr>
           </tbody>
           <tfoot>
@@ -103,7 +129,7 @@
             </tr>
             <tr>
               <td colspan="3" class="total-label">Escompte:</td>
-              <td colspan="3">{{ livraison.escompte | number:'1.2-2' }}</td>
+              <td colspan="3"><input type="number" (change)= "updateCalculations()" [(ngModel)]="livraison.escompte" value="0" ></td>
             </tr>
             <tr>
               <td colspan="3" class="total-label">Total TTC:</td>

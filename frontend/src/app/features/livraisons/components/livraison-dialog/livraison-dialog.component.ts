@@ -163,7 +163,6 @@ export class LivraisonDialogComponent implements OnInit {
       this.error = 'Selected article not found';
       return;
     }
-    
     this.detailCounter++;
     const newDetail: DetailLivraison = {
       numero: this.detailCounter,
@@ -172,49 +171,71 @@ export class LivraisonDialogComponent implements OnInit {
       designation: selectedArticle.designation,
       quantite: 1,
       puHt: selectedArticle.puHt,
-      puHtRemise: selectedArticle.puHt,
       remiseHt: 0,
-      puTtc: selectedArticle.puHt,
-      puTtcRemise: selectedArticle.puHt,
+      puHtRemise: 0,
+      puTtc: 0,
       remiseTtc: 0,
-      montantHt: selectedArticle.puHt,
-      montantTtc: selectedArticle.puHt,
+      puTtcRemise: 0,
+      montantHt: 0,
+      montantTtc: 0,
     };
     
     this.details.push(newDetail);
     this.selectedArticleId = '';
-    this.calculateTotals();
+    this.updateCalculations();
   }
   
   removeDetailLivraison(index: number): void {
     if (index >= 0 && index < this.details.length) {
       this.details.splice(index, 1);
-      this.calculateTotals();
+      this.updateCalculations();
     }
   }
-  
-  calculateTotals(): void {
-    // Implement total calculation logic
+  updateCalculations(): void {
     let totalHt = 0;
+    let totalTva = 0;
     let totalTtc = 0;
     
     for (const detail of this.details) {
+      // Get TVA rate (as a decimal)
+      const tvaRate = (detail.article?.famille?.tva ?? 0) / 100;
+      
+      // Calculate prices with discounts
+      // First apply HT discount to the base HT price
+      const puHtAfterHtDiscount = detail.puHt * (1 - (detail.remiseHt / 100));
+      
+      // Then calculate the TTC price after HT discount
+      const puTtcAfterHtDiscount = puHtAfterHtDiscount * (1 + tvaRate);
+      
+      // Apply TTC discount to get final TTC price with all discounts
+      detail.puTtcRemise = puTtcAfterHtDiscount * (1 - (detail.remiseTtc / 100));
+      
+      // Calculate final HT price with all discounts
+      detail.puHtRemise = detail.puTtcRemise / (1 + tvaRate);
+      
+      // For reference, store the original prices (rounded to 2 decimals)
+      detail.puTtc = +(puTtcAfterHtDiscount).toFixed(2); // so we take the HT and apply discount and tva to get TTC
+      detail.puHt = +(detail.puHt).toFixed(2);
+      
+      // Calculate total amounts
+      detail.montantTtc = detail.puTtcRemise * detail.quantite;
+      detail.montantHt = detail.puHtRemise * detail.quantite;
+      let montantTva = detail.montantTtc - detail.montantHt;
+      
+      // Add to totals
       totalHt += detail.montantHt;
       totalTtc += detail.montantTtc;
+      totalTva += montantTva;
     }
     
-    // Apply discount if needed
-    const discountFactor = 1 - (this.livraison.escompte / 100);
-    
+    // Set delivery totals
     this.livraison.totalHt = totalHt;
+    this.livraison.totalTva = totalTva;
     this.livraison.totalTtc = totalTtc;
-    this.livraison.totalTva = totalTtc - totalHt;
     
-    // Apply discount if present
-    if (this.livraison.escompte > 0) {
-      this.livraison.totalHt *= discountFactor;
-      this.livraison.totalTtc *= discountFactor;
-      this.livraison.totalTva *= discountFactor;
+    // Apply any discount/escompte to the final total
+    if (this.livraison.escompte) {
+      this.livraison.totalTtc -= this.livraison.escompte;
     }
   }
   
