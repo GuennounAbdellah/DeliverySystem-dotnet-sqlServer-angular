@@ -31,5 +31,9 @@ namespace Backend.Entities
         public decimal RemiseTtc { get; set; }
         public decimal MontantHt { get; set; }
         public decimal MontantTtc { get; set; }
+
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 }

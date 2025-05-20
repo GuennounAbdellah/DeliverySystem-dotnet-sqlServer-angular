@@ -72,7 +72,7 @@ namespace Backend.Controllers
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLivraison(Guid id, [FromBody] LivraisonCreateRequest livraison)
-        {
+        {   
             if (livraison == null)
                 return BadRequest("Livraison cannot be null.");
 
@@ -85,9 +85,10 @@ namespace Backend.Controllers
             {
                 return BadRequest(ex.Message);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while updating the livraison.");
+                Console.WriteLine($"Error updating livraison: {ex.ToString()}");
+                return StatusCode(500, $"An error occurred while updating the livraison: {ex.Message}");
             }
         }
 

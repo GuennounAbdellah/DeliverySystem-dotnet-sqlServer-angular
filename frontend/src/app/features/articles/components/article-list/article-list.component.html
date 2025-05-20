@@ -29,12 +29,12 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let article of articles">
+          <tr *ngFor="let article of articles" [ngStyle]="{'background-color': article.stock_Minimum > article.stock ? 'rgb(233, 143, 143)' : null}">
             <td>{{ article.reference }}</td>
             <td>{{ article.designation }}</td>
             <td>{{ article.stock }}</td>
             <td>{{ article.stock_Minimum }}</td>
-            <td>{{ article.unite.abreviation }}</td>
+            <td>{{ article.unite.abreviation }}</td>  
             <td>{{ article.famille.nom }}</td>
             <td>{{ article.puHt }}</td>
             <td>{{ article.montantHt }}</td>

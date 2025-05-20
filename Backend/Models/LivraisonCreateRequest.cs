@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Backend.Models
 {
@@ -14,6 +15,24 @@ namespace Backend.Models
         public decimal Escompte { get; set; }
         public decimal TotalTtc { get; set; }
         public string Editeur { get; set; } = "";
+        
+        // RowVersion as byte array for EF concurrency check
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+        
+        // String representation of RowVersion for frontend
+        [JsonIgnore]
+        public string RowVersionString 
+        { 
+            get => RowVersion != null ? Convert.ToBase64String(RowVersion) : null;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    RowVersion = Convert.FromBase64String(value);
+                }
+            }
+        }
         
         public List<DetailLivraisonCreateRequest> DetailLivraisons { get; set; } = new List<DetailLivraisonCreateRequest>();
     }
@@ -31,5 +50,23 @@ namespace Backend.Models
         public decimal RemiseTtc { get; set; }
         public decimal MontantHt { get; set; }
         public decimal MontantTtc { get; set; }
+
+        // RowVersion as byte array for EF concurrency check
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+        
+        // String representation of RowVersion for frontend
+        [JsonIgnore]
+        public string RowVersionString 
+        { 
+            get => RowVersion != null ? Convert.ToBase64String(RowVersion) : null;
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    RowVersion = Convert.FromBase64String(value);
+                }
+            }
+        }
     }
 }

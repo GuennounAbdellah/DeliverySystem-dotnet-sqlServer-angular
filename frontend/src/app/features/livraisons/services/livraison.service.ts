@@ -27,10 +27,18 @@ export class LivraisonService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
   
-  updateLivraison(id: string, livraison: Livraison): Observable<Livraison> {
+  updateLivraison(id: string, livraison: LivraisonReq): Observable<Livraison> {
+    // Add clear logging to see what's being sent
+    console.log('Updating livraison with ID:', id);
+    console.log('Data being sent:', JSON.stringify(livraison));
+    
+    // Make sure we're passing the data correctly
     return this.http.put<Livraison>(`${this.apiUrl}/${id}`, livraison);
   }
   getCompteureLivraison(): Observable<Compteure> {
     return this.http.get<Compteure>(`${this.apiUrl}/compteur`);
-  } 
+  }
+  incrementCompteur(): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/compteur`, {});
+  }
 }

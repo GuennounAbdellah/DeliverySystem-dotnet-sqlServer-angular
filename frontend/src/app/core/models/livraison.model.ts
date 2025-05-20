@@ -17,6 +17,8 @@ export interface Livraison {
   totalTtc: number;
   editeur: string;
   detailLivraisons: DetailLivraison[];
+  rowVersion?: string; // Added rowVersion for concurrency control
+  rowVersionString?: string;  // Add this field
 }
 
 export interface LivraisonReq {
@@ -31,7 +33,8 @@ export interface LivraisonReq {
   totalTtc: number;
   editeur: string;
   detailLivraisons: DetailLivraison[];
-
+  rowVersion?: string; // Added rowVersion for concurrency control
+  rowVersionString?: string;  // Add this field
 }
 
 export interface Compteure {
@@ -52,6 +55,9 @@ export interface Compteure {
         public decimal Escompte { get; set; }
         public decimal TotalTtc { get; set; }
         public string Editeur { get; set; } = "";
+        
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
         
         public List<DetailLivraisonCreateRequest> DetailLivraisons { get; set; } = new List<DetailLivraisonCreateRequest>();
     }

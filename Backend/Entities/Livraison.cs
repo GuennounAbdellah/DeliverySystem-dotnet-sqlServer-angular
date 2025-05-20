@@ -24,6 +24,9 @@ public class Livraison
         public decimal Escompte { get; set; }
         public decimal TotalTtc { get; set; }
         public required string Editeur { get; set; }
+        
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
 
         public virtual ICollection<DetailLivraison> DetailLivraisons { get; set; } = new List<DetailLivraison>();
     }

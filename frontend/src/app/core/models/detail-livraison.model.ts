@@ -14,6 +14,8 @@ export interface DetailLivraison {
   remiseTtc: number;
   montantHt: number;
   montantTtc: number;
+  rowVersion?: string; // Added rowVersion for concurrency control
+  rowVersionString?: string;  // Add this field
 }
 export interface DetailLivraisonReq {
   articleId: string;
@@ -27,6 +29,8 @@ export interface DetailLivraisonReq {
   remiseTtc: number;
   montantHt: number;
   montantTtc: number;
+  rowVersion?: string; // Added rowVersion for concurrency control
+  rowVersionString?: string;  // Add this field
 }
 
 /*
@@ -43,5 +47,8 @@ export interface DetailLivraisonReq {
         public decimal RemiseTtc { get; set; }
         public decimal MontantHt { get; set; }
         public decimal MontantTtc { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
     }
 */
