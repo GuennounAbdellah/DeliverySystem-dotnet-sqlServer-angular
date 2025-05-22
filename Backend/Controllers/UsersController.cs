@@ -66,8 +66,29 @@ namespace Backend.Controllers
                 return StatusCode(500, new { message = "An error occurred while creating the user.", error = ex.Message });
             }
         }
-        //[HttpPut("{id}")]
-        [HttpDelete("{id}")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserUpdateRequest model)
+        {
+            if (model == null)
+                return BadRequest(new { message = "User cannot be null" });
+            try
+            {
+                var user = await _userService.GetUserById(id);
+                if (user == null)
+                    return NotFound();
+                var updatedUser = await _userService.UpdateUser(id, model);
+                return Ok(updatedUser);
+            }
+            catch (ApplicationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while updating the user.", error = ex.Message });
+            }
+        }
+        [HttpDelete("{id}")] 
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             try

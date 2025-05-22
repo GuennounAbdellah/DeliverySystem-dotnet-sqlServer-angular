@@ -1,0 +1,96 @@
+<div class="user-dialog-overlay" *ngIf="showDialog">
+  <div class="user-dialog">
+    <div class="dialog-header">
+      <h2>{{ isEditMode ? 'Modifier User' : 'Ajouter User' }}</h2>
+      <button class="close-btn" (click)="closeDialog()">×</button>
+    </div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="dialog-content">
+      <form (ngSubmit)="onSubmit()">
+        <div class="form-layout">
+          <div class="left">
+            <div class="left-top">
+              <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  class="form-control"
+                  [value]="getUsernameValue()"
+                  (input)="setUsernameValue(($any($event.target)).value)"
+                  required
+                >
+              </div>
+              <div class="form-group password-group">
+                <label for="password">Password</label>
+                <div class="password-input">
+                  <input
+                    [type]="showPassword ? 'text' : 'password'"
+                    id="password"
+                    class="form-control"
+                    [value]="getPasswordValue()"
+                    (input)="setPasswordValue(($any($event.target)).value)"
+                    [required]="!isEditMode"
+                  >
+                  <button 
+                    type="button" 
+                    class="toggle-password"
+                    (click)="toggleShowPassword()">
+                    {{ showPassword ? 'Hide' : 'Show' }}
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="isAdmin" class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    id="isAdmin"
+                    [checked]="getIsAdminValue()"
+                    (change)="setIsAdminValue(($any($event.target)).checked)"
+                  >
+                  Administrator
+                </label>
+    
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="closeDialog()">Cancel</button>
+              <button type="submit" class="btn-primary">{{ isEditMode ? 'Update' : 'Create' }}</button>
+            </div>   
+          </div>
+
+          <div class="right">
+            <div class="form-group">
+              <label>Roles</label>
+              <div class="admin-hint" *ngIf="getIsAdminValue()">
+                Administrators automatically have access to all roles
+              </div>
+              <div class="roles-container" [class.disabled-roles]="getIsAdminValue()">
+                <div *ngFor="let group of roleGroups" class="role-group">
+                  <h4 class="role-group-title">{{ group.groupName }}</h4>
+                  <div class="role-items">
+                    <div *ngFor="let role of group.roles" class="role-item">
+                      <label [class.view-role]="role.libelle.includes('.View')" [class.disabled]="getIsAdminValue()">
+                        <input
+                          type="checkbox"
+                          [checked]="isRoleSelected(role.id)"
+                          (change)="toggleRole(role.id, role.libelle)"
+                          [disabled]="getIsAdminValue()"
+                        >
+                        {{ role.libelle.split('.')[1] }}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -32,6 +32,11 @@ export const routes: Routes = [
          loadChildren: () => import('./features/livraisons/livraisons.routes').then(m => m.LIVRAISONS_ROUTES)
     },
     {
+        path: 'users',
+        loadComponent: () => import('./features/users/components/user-list/user-list.component')
+          .then(m => m.UserListComponent)
+      },
+    {
         path: '**', 
         redirectTo: '' 
     }

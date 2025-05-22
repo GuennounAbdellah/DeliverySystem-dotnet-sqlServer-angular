@@ -1,0 +1,45 @@
+<app-layout>
+  <div class="container">
+    <div class="header">
+      <h1>Utilisateures Management</h1>
+      <button class="btn btn-primary" (click)="openCreateDialog()">Ajouter utilisateur</button>
+    </div>
+
+    <div *ngIf="loading" class="loading">Loading users...</div>
+    
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    
+    <div class="table-container" *ngIf="!loading && !error">
+      <table class="table table-striped" *ngIf="users.length > 0">
+        <thead>
+          <tr>
+            <th>Nom tilisateure</th>
+            <th>Admin</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.username }}</td>
+            <td>{{ user.isAdmin ? 'Oui' : 'Non' }}</td>
+            <td>
+              <button class="btn btn-sm btn-info" (click)="openEditDialog(user)">Modifier</button>
+              <button class="btn btn-sm btn-danger" (click)="deleteUser(user.id)">Suprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="no-users" *ngIf="users.length === 0">
+        No users found.
+      </div>
+    </div>
+  </div>
+  
+  <app-user-dialog
+    (userCreated)="loadUsers()"
+    (userUpdated)="loadUsers()">
+  </app-user-dialog>
+</app-layout>
