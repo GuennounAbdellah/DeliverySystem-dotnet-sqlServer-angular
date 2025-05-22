@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Backend.Entities
 {
@@ -10,11 +11,13 @@ namespace Backend.Entities
 
         [ForeignKey(nameof(Role))]
         public Guid RoleId { get; set; }
-        public required virtual Role Role { get; set; }
+        public  virtual Role? Role { get; set; }
 
         [ForeignKey(nameof(User))]
         public Guid UserId { get; set; }
-        public required virtual User User { get; set; }
+
+        [JsonIgnore]
+        public virtual User? User { get; set; }
 
         public bool Valeur { get; set; }
     }
