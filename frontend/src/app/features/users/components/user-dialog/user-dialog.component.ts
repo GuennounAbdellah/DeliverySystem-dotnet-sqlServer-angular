@@ -52,17 +52,17 @@ export class UserDialogComponent implements OnInit {
     this.loadRoles();
   }
 
-  openEdit(user: User): void {
+  openEdit(u: User): void {
     this.showDialog = true;
     this.isEditMode = true;
     this.error = null;
-    this.user = { ...user };
+    this.user = { ...u };
     
     
     // Set up update user object
     this.updateUser = {
-      username: user.username,
-      isAdmin: user.isAdmin,
+      username: u.username,
+      isAdmin: u.isAdmin,
       rolesId : []
     };
     if(this.user.rolesUsers)
@@ -253,6 +253,7 @@ export class UserDialogComponent implements OnInit {
   onSubmit(): void {
     this.error = null;
     console.log(this.updateUser)
+    console.log(this.user?.id)
     
     if (this.isEditMode && this.user) {
       this.userService.updateUser(this.user.id, this.updateUser).subscribe({

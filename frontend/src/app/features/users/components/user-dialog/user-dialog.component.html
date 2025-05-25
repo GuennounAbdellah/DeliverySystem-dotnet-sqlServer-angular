@@ -15,7 +15,7 @@
           <div class="left">
             <div class="left-top">
               <div class="form-group">
-                <label for="username">Username</label>
+                <label for="username">Nom utilisateur</label>
                 <input
                   type="text"
                   id="username"
@@ -26,7 +26,7 @@
                 >
               </div>
               <div class="form-group password-group">
-                <label for="password">Password</label>
+                <label for="password">Mot de passe</label>
                 <div class="password-input">
                   <input
                     [type]="showPassword ? 'text' : 'password'"
@@ -52,7 +52,7 @@
                     [checked]="getIsAdminValue()"
                     (change)="setIsAdminValue(($any($event.target)).checked)"
                   >
-                  Administrator
+                  Administrateur
                 </label>
     
               </div>

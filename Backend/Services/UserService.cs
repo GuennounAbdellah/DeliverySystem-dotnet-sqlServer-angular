@@ -58,7 +58,7 @@ namespace Backend.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:Secret"] ??
                 throw new InvalidOperationException("JWT secret not configured"));
-
+            
             // Create claims list
             var claims = new List<Claim>
             {
@@ -173,80 +173,111 @@ namespace Backend.Services
         }
 
         public async Task<User> UpdateUser(Guid id, UserUpdateRequest userReq)
-        {
-            var user = await _context.Users
-                .Include(u => u.RolesUsers)
-                .FirstOrDefaultAsync(u => u.Id == id);
-                
-            if (user == null)
-                throw new ApplicationException($"User not found with this id: {id}");
-                
-            if (userReq.Username != null)
-            {
-                if (string.IsNullOrWhiteSpace(userReq.Username))
-                    throw new ArgumentException("Username cannot be empty");
-                    
-                // Check if username is taken by another user
-                var existingUser = await _context.Users.FirstOrDefaultAsync(u => 
-                    u.Username == userReq.Username && u.Id != id);
-                    
-                if (existingUser != null)
-                    throw new ApplicationException("Username is already taken by another user");
-                    
-                user.Username = userReq.Username;
-            }
-            
-            if (userReq.PasswordHash != null)
-            {
-                if (string.IsNullOrWhiteSpace(userReq.PasswordHash))
-                    throw new ArgumentException("Password cannot be empty");
-                    
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userReq.PasswordHash);
-            }
-            
-            user.IsAdmin = userReq.IsAdmin ?? user.IsAdmin;
-
-            // Remove all existing RolesUsers for this user
-            if (user.RolesUsers != null && user.RolesUsers.Any())
-            {
-                _context.RemoveRange(user.RolesUsers);
-                user.RolesUsers.Clear();
-            }
-
-            // Add new roles if provided
-            if (userReq.RolesId != null && userReq.RolesId.Count > 0)
-            {
-                foreach (var roleId in userReq.RolesId)
-                {
-                    var role = await _context.Roles.FindAsync(roleId);
-                    if (role == null)
-                        throw new ApplicationException($"Role with ID {roleId} not found");
-
-                    var newRoleUser = new RolesUser
-                    {
-                        Id = Guid.NewGuid(),
-                        RoleId = role.Id,
-                        Role = role,
-                        User = user,
-                        UserId = user.Id,
-                        Valeur = true
-                    };
-                    user.RolesUsers ??= new List<RolesUser>();
-                    user.RolesUsers.Add(newRoleUser);
-                }
-            }
+        { 
+            using var transaction = await _context.Database.BeginTransactionAsync();
             
             try
             {
+                var user = await _context.Users
+                    .Include(u => u.RolesUsers)
+                    .FirstOrDefaultAsync(u => u.Id == id);
+                    
+                if (user == null)
+                    throw new ApplicationException($"User not found with this id: {id}");
+                    
+                // Update username if provided
+                if (userReq.Username != null)
+                {
+                    if (string.IsNullOrWhiteSpace(userReq.Username))
+                        throw new ArgumentException("Username cannot be empty");
+                        
+                    var existingUser = await _context.Users.FirstOrDefaultAsync(u => 
+                        u.Username == userReq.Username && u.Id != id);
+                        
+                    if (existingUser != null)
+                        throw new ApplicationException("Username is already taken by another user");
+                        
+                    user.Username = userReq.Username;
+                }
+                
+                // Update password if provided
+                if (userReq.PasswordHash != null)
+                {
+                    if (string.IsNullOrWhiteSpace(userReq.PasswordHash))
+                        throw new ArgumentException("Password cannot be empty");
+                        
+                    user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userReq.PasswordHash);
+                }
+                
+                // Update IsAdmin
+                user.IsAdmin = userReq.IsAdmin ?? user.IsAdmin;
+                
+                // Save user changes first
                 await _context.SaveChangesAsync();
-                return user;
+
+                // Handle roles update separately
+                if (userReq.RolesId != null)
+                {
+                    // Get current role IDs fresh from database
+                    var currentRoleUsers = await _context.RolesUsers
+                        .Where(ru => ru.UserId == user.Id)
+                        .ToListAsync();
+                    
+                    var currentRoleIds = currentRoleUsers.Select(ru => ru.RoleId).ToList();
+                    var newRoleIds = userReq.RolesId;
+
+                    // Find roles to remove
+                    var rolesToRemove = currentRoleUsers.Where(ru => !newRoleIds.Contains(ru.RoleId)).ToList();
+                    if (rolesToRemove.Any())
+                    {
+                        _context.RolesUsers.RemoveRange(rolesToRemove);
+                    }
+
+                    // Find roles to add
+                    var rolesToAdd = newRoleIds.Where(roleId => !currentRoleIds.Contains(roleId)).ToList();
+                    
+                    // Validate all roles exist before adding any
+                    foreach (var roleId in rolesToAdd)
+                    {
+                        var roleExists = await _context.Roles.AnyAsync(r => r.Id == roleId);
+                        if (!roleExists)
+                            throw new ApplicationException($"Role with ID {roleId} not found");
+                    }
+                    
+                    // Add new roles
+                    foreach (var roleId in rolesToAdd)
+                    {
+                        var newRoleUser = new RolesUser
+                        {
+                            Id = Guid.NewGuid(),
+                            RoleId = roleId,
+                            UserId = user.Id,
+                            Valeur = true
+                        };
+                        _context.RolesUsers.Add(newRoleUser);
+                    }
+                    
+                    // Save all role changes at once
+                    await _context.SaveChangesAsync();
+                }
+                await transaction.CommitAsync();
+                
+                // Return fresh user data
+                return await GetUserById(user.Id) ?? throw new ApplicationException("Failed to update user");
             }
-            catch (DbUpdateConcurrencyException)
+            catch (ArgumentException)
             {
-                throw new ApplicationException("The user has been modified by another user. Please refresh and try again.");
+                await transaction.RollbackAsync();
+                throw; // Re-throw ArgumentException with original message
+            }
+            catch (ApplicationException)
+            {
+                await transaction.RollbackAsync();
+                throw; // Re-throw ApplicationException with original message
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 throw new ApplicationException("Failed to update user", ex);
             }
         }
