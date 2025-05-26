@@ -70,11 +70,11 @@ export class ClientDialogComponent {
           this.clientUpdated.emit(updatedClient);
         },
         error: (err) => {
-          console.error('Failed to update client:', err);
+          console.error('Échec de la mise à jour du client:', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid client data';
+            this.error = err.error?.message || 'Données du client invalides';
           } else {
-            this.error = 'Failed to update client';
+            this.error = 'Échec de la mise à jour du client';
           }
         }
       });
@@ -86,11 +86,11 @@ export class ClientDialogComponent {
           this.clientAdded.emit(newClient);
         },
         error: (err) => {
-          console.error('Failed to create client:', err);
+          console.error('Échec de la création du client:', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid client data';
+            this.error = err.error?.message || 'Données du client invalides';
           } else {
-            this.error = 'Failed to create client';
+            this.error = 'Échec de la création du client';
           }
         }
       });
@@ -99,12 +99,12 @@ export class ClientDialogComponent {
   
   validateForm(): boolean {
     if (!this.client.nom) {
-      this.error = 'Client name is required';
+      this.error = 'Le nom du client est requis';
       return false;
     }
     
     if (!this.client.telephone) {
-      this.error = 'Phone number is required';
+      this.error = 'Le numéro de téléphone est requis';
       return false;
     }
     

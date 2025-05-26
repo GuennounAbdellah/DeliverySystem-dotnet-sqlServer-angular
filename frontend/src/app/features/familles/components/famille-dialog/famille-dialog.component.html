@@ -1,7 +1,7 @@
 <div class="dialog-overlay" *ngIf="showDialog" (click)="close()">
   <div class="dialog" (click)="$event.stopPropagation()">
     <div class="dialog-header">
-      <h2>{{ editMode ? 'Edit Famille' : 'Add New Famille' }}</h2>
+      <h2>{{ editMode ? 'Modifier Famille' : 'Ajouter une nouvelle Famille' }}</h2>
       <button class="close-button" (click)="close()">×</button>
     </div>
     
@@ -11,20 +11,20 @@
       </div>
       
       <div class="form-group">
-        <label for="nom">Name</label>
-        <input type="text" id="nom" appTextFormatter [(ngModel)]="famille.nom" placeholder="Enter famille name">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" appTextFormatter [(ngModel)]="famille.nom" placeholder="Entrez le nom de la famille">
       </div>
       
       <div class="form-group">
         <label for="tva">TVA (%)</label>
-        <input type="number" id="tva" [(ngModel)]="famille.tva" placeholder="Enter TVA percentage">
+        <input type="number" id="tva" [(ngModel)]="famille.tva" placeholder="Entrez le pourcentage de TVA">
       </div>
     </div>
     
     <div class="dialog-footer">
       <button class="cancel-button" (click)="close()">Cancel</button>
       <button class="submit-button" (click)="submit()">
-        {{ editMode ? 'Update Famille' : 'Add Famille' }}
+        {{ editMode ? 'Modifier Famille' : 'Ajouter Famille' }}
       </button>
     </div>
   </div>

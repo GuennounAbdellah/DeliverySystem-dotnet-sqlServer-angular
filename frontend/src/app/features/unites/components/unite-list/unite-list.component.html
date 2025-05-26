@@ -1,13 +1,15 @@
 <app-layout>
   <div class="unites-container">
     <div class="header">
-      <h1>Unités Management</h1>
-      <button class="add-button" (click)="openAddUniteDialog()">
+      <h1>Gestion des Unités</h1>
+      <button class="add-button" 
+      (click)="openAddUniteDialog()"
+      [disabled]="!canCreateUnites()">
         Ajouter Unité
       </button>
     </div>
     
-    <div *ngIf="loading" class="loading">Loading unités...</div>
+    <div *ngIf="loading" class="loading">Chargement des unités...</div>
     
     <div *ngIf="error" class="error-message">
       {{ error }}
@@ -27,15 +29,19 @@
             <td>{{ unite.nom }}</td>
             <td>{{ unite.abreviation }}</td>
             <td>
-              <button class="edit-btn" (click)="uniteDialog.openEdit(unite)">Modifier</button>
-              <button class="delete-btn" (click)="deleteUnite(unite.id)">Suprimer</button>
+              <button class="edit-btn" 
+                      (click)="uniteDialog.openEdit(unite)" 
+                      [disabled]="!canEditUnites()">Modifier</button>
+              <button class="delete-btn" 
+                      (click)="deleteUnite(unite.id)" 
+                      [disabled]="!canDeleteUnites()">Supprimer</button>
             </td>
           </tr>
         </tbody>
       </table>
       
       <div class="no-unites" *ngIf="unites.length === 0">
-        No unités found.
+        Aucune unité trouvée.
       </div>
     </div>
   </div>

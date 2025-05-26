@@ -1,14 +1,15 @@
 <app-layout>
   <div class="clients-container">
     <div class="header">
-      <h1>Clients Management</h1>
+      <h1>Gestion des clients</h1>
       <!-- Only show Add button for admins -->
-      <button  class="add-button" (click)="openAddClientDialog()">
-        Ajouter Client
+      <button  class="add-button" (click)="openAddClientDialog()" 
+               [disabled]="!canCreateClients()">
+        Ajouter un Client
       </button>
     </div>
     
-    <div *ngIf="loading" class="loading">Loading clients...</div>
+    <div *ngIf="loading" class="loading">Chargement des clients...</div>
     
     <div *ngIf="error" class="error-message">
       {{ error }}
@@ -22,7 +23,6 @@
             <th>Téléphone</th>
             <th>Fax</th>
             <th>Addresse</th>
-            <!-- Only show Actions column for admins -->
             <th >Actions</th>
           </tr>
         </thead>
@@ -33,15 +33,18 @@
             <td>{{ client.fax }}</td>
             <td>{{ client.adresse }}</td>
             <td >
-              <button class="edit-btn" (click)="clientDialog.openEdit(client)">Modifier</button>
-              <button class="delete-btn" (click)="deleteClient(client.id)">Suprimer</button>
+              <button class="edit-btn" 
+                      (click)="clientDialog.openEdit(client)" 
+                      [disabled]="!canEditClients()">Modifier</button>
+              <button class="delete-btn" (click)="deleteClient(client.id)" 
+                      [disabled]="!canDeleteClients()">Suprimer</button>
             </td>
           </tr>
         </tbody>
       </table>
       
       <div class="no-clients" *ngIf="clients.length === 0">
-        No clients found.
+        Aucun client trouvé.
       </div>
     </div>
   </div>

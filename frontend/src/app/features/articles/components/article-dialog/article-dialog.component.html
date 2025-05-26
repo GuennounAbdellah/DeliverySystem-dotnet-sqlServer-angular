@@ -16,28 +16,28 @@
       
       <div class="form-group">
         <label for="reference">Référence</label>
-        <input type="text" appTextFormatter id="reference" [(ngModel)]="article.reference"  placeholder="Enter article reference">
+        <input type="text" appTextFormatter id="reference" [(ngModel)]="article.reference"  placeholder="Entrez la référence de l'article">
       </div>
       
       <div class="form-group"> 
         <label for="designation">Désignation</label>
-        <input type="text" id="designation" [(ngModel)]="article.designation" appTextFormatter placeholder="Enter article designation">
+        <input type="text" id="designation" [(ngModel)]="article.designation" appTextFormatter placeholder="Entrez la désignation de l'article">
       </div>
       
       <div class="form-group">
         <label for="stock">Stock</label>
-        <input type="number" id="stock" [(ngModel)]="article.stock" placeholder="Enter stock quantity">
+        <input type="number" id="stock" [(ngModel)]="article.stock" placeholder="Entrez la quantité en stock">
       </div>
 
       <div class="form-group">
             <label for="stockMin">Stock minimum</label>
-            <input type="number" id="stockMin" [(ngModel)]="article.stock_Minimum" placeholder="Enter minimum stock">
+            <input type="number" id="stockMin" [(ngModel)]="article.stock_Minimum" placeholder="Entrez le stock minimum">
         </div>
             
       <div class="form-group">
         <label for="unite">Unité</label>
         <select id="unite" [(ngModel)]="article.uniteId">
-          <option value="" disabled>Select an unite</option>
+          <option value="" disabled>Sélectionnez une unité</option>
           <option *ngFor="let unite of unites" [value]="unite.id">{{ unite.nom }} ({{ unite.abreviation }})</option>
         </select>
       </div>
@@ -45,7 +45,7 @@
       <div class="form-group">
         <label for="famille">Famille</label>
         <select id="famille" [(ngModel)]="article.familleId">
-          <option value="" disabled>Select a famille</option>
+          <option value="" disabled>Sélectionnez une famille</option>
           <option *ngFor="let famille of familles" [value]="famille.id">{{ famille.nom }}</option>
         </select>
       </div>

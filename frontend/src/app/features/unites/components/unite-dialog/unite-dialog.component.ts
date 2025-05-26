@@ -66,11 +66,11 @@ export class UniteDialogComponent {
           this.uniteUpdated.emit(updatedUnite);
         },
         error: (err) => {
-          console.error('Failed to update unite:', err);
+          console.error('Echec à mettre à jour l\'unité:', err);
           if (err.status === 400) {
             this.error = err.error?.message || 'Invalid unite data';
           } else {
-            this.error = 'Failed to update unite';
+            this.error = 'Echec à mettre à jour l\'unité';
           }
         }
       });
@@ -84,9 +84,9 @@ export class UniteDialogComponent {
         error: (err) => {
           console.error('Failed to create unite:', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid unite data';
+            this.error = err.error?.message || 'donnees d\'unité invalides';
           } else {
-            this.error = 'Failed to create unite';
+            this.error = 'Echec à créer l\'unité';
           }
         }
       });

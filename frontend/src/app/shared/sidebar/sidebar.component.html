@@ -10,37 +10,37 @@
           <span>Tableau de bord</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="canViewClients()">
         <a routerLink="/clients" routerLinkActive="active">
           <i class="fas fa-users"></i>
           <span>Clients</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="canViewArticles()">
         <a routerLink="/articles" routerLinkActive="active">
           <i class="fas fa-boxes"></i>
           <span>Articles</span>
         </a>
       </li> 
-      <li>
+      <li *ngIf="canViewUnites()">
         <a routerLink="/unites" routerLinkActive="active">
           <i class="fas fa-ruler"></i>
           <span>Unités</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="canViewFamilles()">
         <a routerLink="/familles" routerLinkActive="active">
           <i class="fas fa-sitemap"></i>
           <span>Familles</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="canViewLivraisons()">
         <a routerLink="/livraisons" routerLinkActive="active">
           <i class="fas fa-truck"></i>
           <span>Livraisons</span>
         </a>
       </li>
-      <li>
+      <li *ngIf="canViewUsers()">
         <a routerLink="/users" routerLinkActive="active">
           <i class="fas fa-user-cog"></i>
           <span>Utilisateurs</span>

@@ -106,3 +106,10 @@
   margin-bottom: 20px;
   font-size: 14px;
 }
+.add-button:disabled,
+.edit-btn:disabled:disabled,
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #666;
+}

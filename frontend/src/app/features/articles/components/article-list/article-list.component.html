@@ -1,8 +1,12 @@
 <app-layout>
   <div class="articles-container">
     <div class="header">
-      <h1>Articles Management</h1>
-      <button class="add-button" (click)="openAddArticleDialog()">
+      <h1>Gestion des articles</h1>
+      <button class="add-button"
+               (click)="openAddArticleDialog()"
+               [disabled]="!canCreateArticles()"
+               
+               >
         Ajouter Article
       </button>
     </div>
@@ -39,15 +43,20 @@
             <td>{{ article.puHt }}</td>
             <td>{{ article.montantHt }}</td>
             <td>
-              <button class="edit-btn" (click)="articleDialog.openEdit(article)">Modifier</button>
-              <button class="delete-btn" (click)="deleteArticle(article.id)">Suprimer</button>
+              <button class="edit-btn"
+                     (click)="articleDialog.openEdit(article)"
+                     [disabled]="!canEditArticles()"
+                     >Modifier</button>
+              <button class="delete-btn" 
+                      (click)="deleteArticle(article.id)" 
+                      [disabled]="!canDeleteArticles()">Suprimer</button>
             </td>
           </tr>
         </tbody>
       </table>
       
       <div class="no-articles" *ngIf="articles.length === 0">
-        No articles found.
+        Aucun article trouvé.
       </div>
     </div>
   </div>

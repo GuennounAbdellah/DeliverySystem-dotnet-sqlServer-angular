@@ -5,6 +5,7 @@ import { LayoutComponent } from '../../../../shared/layout/layout.component';
 import { FamilleDialogComponent } from '../famille-dialog/famille-dialog.component';
 import { Famille } from '../../../../core/models/famille.model';
 import { FamilleService } from '../../services/famille.service';
+import { PermissionService } from '../../../../core/services/PermissionService';
 
 @Component({
   selector: 'app-famille-list',
@@ -22,8 +23,20 @@ export class FamilleListComponent implements OnInit {
   
   constructor(
     private familleService: FamilleService,
+    private permissionService: PermissionService,
   ) { }
   
+  // Permission check methods
+  canCreateFamilles(): boolean {
+    return this.permissionService.hasPermission('Familles.Create');
+  }
+  canEditFamilles(): boolean {
+    return this.permissionService.hasPermission('Familles.Edit');
+  }
+  canDeleteFamilles(): boolean {
+    return this.permissionService.hasPermission('Familles.Delete');
+  }
+
   ngOnInit(): void {
     this.loadFamilles();
   }
@@ -36,7 +49,7 @@ export class FamilleListComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load familles';
+        this.error = 'Échec du chargement des familles';
         this.loading = false;
         console.error(err);
       }
@@ -48,14 +61,14 @@ export class FamilleListComponent implements OnInit {
   }
   
   deleteFamille(id: string): void {
-    if (confirm('Are you sure you want to delete this famille?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette famille ?')) {
       this.familleService.deleteFamille(id).subscribe({
         next: () => {
           this.familles = this.familles.filter(famille => famille.id !== id);
         },
         error: (err) => {
-          console.error('Failed to delete famille:', err);
-          this.error = 'Failed to delete famille. It may be referenced by articles.';
+          console.error('Échec de la suppression de la famille:', err);
+          this.error = 'Échec de la suppression de la famille. Elle peut être référencée par des articles.';
         }
       });
     }

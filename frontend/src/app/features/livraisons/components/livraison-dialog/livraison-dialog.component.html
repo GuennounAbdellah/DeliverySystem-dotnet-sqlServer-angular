@@ -1,7 +1,7 @@
 <div class="dialog-overlay" *ngIf="showDialog">
   <div class="dialog-container">
     <div class="dialog-header">
-      <h2>{{ editMode ? 'Modifier Livraison' : 'Ajoute Livraison' }}</h2>
+      <h2>{{ editMode ? 'Modifier Livraison' : 'Ajouter Livraison' }}</h2>
       <button class="close-button" (click)="close()">&times;</button>
     </div>
     
@@ -18,22 +18,22 @@
           <div class="form-group">
             <label for="client">Client</label>
             <select id="client" [(ngModel)]="livraison.clientId">
-              <option value="">Select Client</option>
+              <option value="">Sélectionnez Client</option>
               <option *ngFor="let client of clients" [value]="client.id">{{ client.nom }}</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="info">Info</label>
-            <textarea id="info" [(ngModel)]="livraison.info" placeholder="Enter info"></textarea>
+            <textarea id="info" [(ngModel)]="livraison.info" placeholder="Entrez des informations"></textarea>
           </div>
           
         </div>
         <div class="top-left">
 
           <div class="form-group">
-            <label for="numero">Numero</label>
-            <input type="text" id="numero" [(ngModel)]="livraison.numero" placeholder="Enter numero">
+            <label for="numero">Numéro</label>
+            <input type="text" id="numero" [(ngModel)]="livraison.numero">
           </div>
 
           <div class="form-group">
@@ -75,7 +75,7 @@
               <th>Désignation</th>
               <th>Quantité</th>
               <th>Unité</th>
-              <th>{{ isHT ? "PU HT Brut" : "PU TTC Brut"}}</th>
+              <th>{{ isHT ? "PU HT" : "PU TTC" }}</th>
               <th>{{ isHT ? "Remise HT(%)":"Remise TTC(%)"}}</th>
               <th>{{ isHT ? "PU HT Remisé":"PU TTC Remisé"}}</th>
               <th>{{ isHT ? "Montant HT":"Montant TCC"}}</th>
@@ -92,8 +92,8 @@
               
               <!-- Conditionally render input fields based on isHT flag -->
               <td>
-                <input type="number" *ngIf="isHT" [(ngModel)]="detail.puHt" (input)="updateCalculations()" step="0.01">
-                <input type="number" *ngIf="!isHT" [(ngModel)]="detail.puTtc" (input)="updateCalculations()" step="0.01">
+                <input type="number" *ngIf="isHT" [(ngModel)]="detail.puHt" (input)="updateCalculations()" step="0.01" [ngModelOptions]="{standalone: true}" > 
+                <input type="number" *ngIf="!isHT" [(ngModel)]="detail.puTtc" (input)="updateCalculations()" step="0.01" [ngModelOptions]="{standalone: true}">
               </td>
 
               <td>
@@ -143,7 +143,7 @@
     <div class="dialog-footer">
       <button class="cancel-button" (click)="close()">Cancel</button>
       <button class="submit-button" (click)="submit()">
-        {{ editMode ? 'Update Livraison' : 'Add Livraison' }}
+        {{ editMode ? 'Modifier Livraison' : 'Ajouter Livraison' }}
       </button>
     </div>
   </div>

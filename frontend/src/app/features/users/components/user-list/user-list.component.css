@@ -90,3 +90,10 @@
   color: #b71c1c;
   margin-bottom: 20px;
 }
+.btn-primary:disabled,
+.btn-info:disabled,
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #666;
+}

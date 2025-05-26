@@ -14,6 +14,8 @@ export interface AuthRequest {
     id: string;
     username: string;
     token: string;
+    isAdmin: boolean;
+    roles: string[];
   }
 
 @Injectable({
@@ -78,5 +80,4 @@ export class AuthService {
         const currentUser = this.getCurrentUser();
         return currentUser ? currentUser.token : null;
     }
- 
 }

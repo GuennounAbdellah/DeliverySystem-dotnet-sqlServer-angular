@@ -1,11 +1,13 @@
 <app-layout>
   <div class="container">
     <div class="header">
-      <h1>Utilisateures Management</h1>
-      <button class="btn btn-primary" (click)="openCreateDialog()">Ajouter utilisateur</button>
+      <h1>Gestion Utilisateures</h1>
+      <button class="btn btn-primary" 
+              (click)="openCreateDialog()"
+              [disabled]="!canCreateUsers()">Ajouter utilisateur</button>
     </div>
 
-    <div *ngIf="loading" class="loading">Loading users...</div>
+    <div *ngIf="loading" class="loading">Chargement des utilisateurs...</div>
     
     <div *ngIf="error" class="error-message">
       {{ error }}
@@ -15,7 +17,7 @@
       <table class="table table-striped" *ngIf="users.length > 0">
         <thead>
           <tr>
-            <th>Nom tilisateure</th>
+            <th>Nom utilisateur</th>
             <th>Admin</th>
             <th>Actions</th>
           </tr>
@@ -25,15 +27,19 @@
             <td>{{ user.username }}</td>
             <td>{{ user.isAdmin ? 'Oui' : 'Non' }}</td>
             <td>
-              <button class="btn btn-sm btn-info" (click)="openEditDialog(user)">Modifier</button>
-              <button class="btn btn-sm btn-danger" (click)="deleteUser(user.id)">Suprimer</button>
+              <button class="btn btn-sm btn-info" 
+                      (click)="openEditDialog(user)"
+                      [disabled]="!canEditUsers()">Modifier</button>
+              <button class="btn btn-sm btn-danger" 
+                      (click)="deleteUser(user.id)" 
+                      [disabled]="!canDeleteUsers()">Suprimer</button>
             </td>
           </tr>
         </tbody>
       </table>
       
       <div class="no-users" *ngIf="users.length === 0">
-        No users found.
+        Aucune utilisateur trouvé.
       </div>
     </div>
   </div>

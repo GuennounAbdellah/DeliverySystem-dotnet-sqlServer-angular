@@ -55,8 +55,8 @@ export class ArticleDialogComponent implements OnInit {
         this.loadingLists = false;
       },
       error: (err) => {
-        console.error('Failed to load unites:', err);
-        this.error = 'Failed to load unites. Please try again.';
+        console.error('Échec du chargement des unités :', err);
+        this.error = 'Échec du chargement des unités. Veuillez réessayer.';
         this.loadingLists = false;
       }
     });
@@ -68,8 +68,8 @@ export class ArticleDialogComponent implements OnInit {
         this.loadingLists = false;
       },
       error: (err) => {
-        console.error('Failed to load familles:', err);
-        this.error = 'Failed to load familles. Please try again.';
+        console.error('Échec du chargement des familles :', err);
+        this.error = 'Échec du chargement des familles. Veuillez réessayer.';
         this.loadingLists = false;
       }
     });
@@ -137,11 +137,11 @@ export class ArticleDialogComponent implements OnInit {
           this.articleUpdated.emit(updatedArticle);
         },
         error: (err) => {
-          console.error('Failed to update article:', err);
+          console.error('Échec de la mise à jour de l\'article :', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid article data';
+            this.error = err.error?.message || 'Données de l\'article invalides';
           } else {
-            this.error = 'Failed to update article';
+            this.error = 'Échec de la mise à jour de l\'article';
           }
         }
       });
@@ -153,11 +153,11 @@ export class ArticleDialogComponent implements OnInit {
           this.articleAdded.emit(newArticle);
         },
         error: (err) => {
-          console.error('Failed to create article:', err);
+          console.error('Échec de la création de l\'article :', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid article data';
+            this.error = err.error?.message || 'Données de l\'article invalides';
           } else {
-            this.error = 'Failed to create article';
+            this.error = 'Échec de la création de l\'article';
           }
         }
       });
@@ -166,32 +166,32 @@ export class ArticleDialogComponent implements OnInit {
   
   validateForm(): boolean {
     if (!this.article.reference) {
-      this.error = 'Article reference is required';
+      this.error = 'Référence de l\'article est requise';
       return false;
     }
     
     if (!this.article.designation) {
-      this.error = 'Article designation is required';
+      this.error = 'La désignation de l\'article est requise';
       return false;
     }
     
     if (!this.article.uniteId) {
-      this.error = 'Please select a unite';
+      this.error = 'Veuillez sélectionner une unité';
       return false;
     }
     
     if (!this.article.familleId) {
-      this.error = 'Please select a famille';
+      this.error = 'Veuillez sélectionner une famille';
       return false;
     }
     
     if (this.article.puHt < 0) {
-      this.error = 'Price cannot be negative';
+      this.error = 'Le prix ne peut pas être négatif';
       return false;
     }
     
     if (this.article.montantHt < 0) {
-      this.error = 'Amount cannot be negative';
+      this.error = 'Le montant ne peut pas être négatif';
       return false;
     }
     

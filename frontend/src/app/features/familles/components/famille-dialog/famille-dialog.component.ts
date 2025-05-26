@@ -68,9 +68,9 @@ export class FamilleDialogComponent {
         error: (err) => {
           console.error('Failed to update famille:', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid famille data';
+            this.error = err.error?.message || 'Données de famille invalides';
           } else {
-            this.error = 'Failed to update famille';
+            this.error = 'Échec de la mise à jour de la famille';
           }
         }
       });
@@ -84,9 +84,9 @@ export class FamilleDialogComponent {
         error: (err) => {
           console.error('Failed to create famille:', err);
           if (err.status === 400) {
-            this.error = err.error?.message || 'Invalid famille data';
+            this.error = err.error?.message || 'Données de famille invalides';
           } else {
-            this.error = 'Failed to create famille';
+            this.error = 'Échec de la création de la famille';
           }
         }
       });
@@ -95,12 +95,12 @@ export class FamilleDialogComponent {
   
   validateForm(): boolean {
     if (!this.famille.nom) {
-      this.error = 'Famille name is required';
+      this.error = 'Le nom de la famille est requis';
       return false;
     }
     
     if (this.famille.tva < 0) {
-      this.error = 'TVA cannot be negative';
+      this.error = 'La TVA ne peut pas être négative';
       return false;
     }
     

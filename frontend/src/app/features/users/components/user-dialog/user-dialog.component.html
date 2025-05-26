@@ -1,7 +1,7 @@
 <div class="user-dialog-overlay" *ngIf="showDialog">
   <div class="user-dialog">
     <div class="dialog-header">
-      <h2>{{ isEditMode ? 'Modifier User' : 'Ajouter User' }}</h2>
+      <h2>{{ isEditMode ? 'Modifier Utilisateur' : 'Ajouter Utilisateur' }}</h2>
       <button class="close-btn" (click)="closeDialog()">×</button>
     </div>
     
@@ -58,8 +58,8 @@
               </div>
             </div>
             <div class="form-actions">
-              <button type="button" class="btn-secondary" (click)="closeDialog()">Cancel</button>
-              <button type="submit" class="btn-primary">{{ isEditMode ? 'Update' : 'Create' }}</button>
+              <button type="button" class="btn-secondary" (click)="closeDialog()">Annuler</button>
+              <button type="submit" class="btn-primary">{{ isEditMode ? 'Modifier' : 'Ajouter' }} User</button>
             </div>   
           </div>
 
@@ -67,7 +67,7 @@
             <div class="form-group">
               <label>Roles</label>
               <div class="admin-hint" *ngIf="getIsAdminValue()">
-                Administrators automatically have access to all roles
+                Administrateurs automatiquement ont accès à tous les rôles
               </div>
               <div class="roles-container" [class.disabled-roles]="getIsAdminValue()">
                 <div *ngFor="let group of roleGroups" class="role-group">

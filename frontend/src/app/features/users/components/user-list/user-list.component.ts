@@ -4,6 +4,7 @@ import { UserService } from '../../services/user.service';
 import { User } from '../../../../core/models/user.model';
 import { UserDialogComponent } from '../user-dialog/user-dialog.component';
 import { LayoutComponent } from "../../../../shared/layout/layout.component";
+import { PermissionService } from '../../../../core/services/PermissionService';
 
 @Component({
   selector: 'app-user-list',
@@ -19,7 +20,17 @@ export class UserListComponent implements OnInit {
   loading = false;
   error: string | null = null;
 
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService, private permissionService: PermissionService) { }
+  // Permission check methods
+  canCreateUsers(): boolean {
+    return this.permissionService.hasPermission('Users.Create');
+  }
+  canEditUsers(): boolean {
+    return this.permissionService.hasPermission('Users.Edit');
+  }
+  canDeleteUsers(): boolean {
+    return this.permissionService.hasPermission('Users.Delete');
+  }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -34,7 +45,7 @@ export class UserListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching users', error);
-        this.error = 'Failed to load users';
+        this.error = 'Erreur lors du chargement des utilisateurs';
         this.loading = false;
       }
     });
@@ -49,14 +60,14 @@ export class UserListComponent implements OnInit {
   }
 
   deleteUser(id: string): void {
-    if (confirm('Are you sure you want to delete this user?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
       this.userService.deleteUser(id).subscribe({
         next: () => {
           this.loadUsers();
         },
         error: (error) => {
           console.error('Error deleting user', error);
-          this.error = 'Failed to delete user';
+          this.error = 'Erreur lors de la suppression de l\'utilisateur';
         }
       });
     }

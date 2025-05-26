@@ -164,7 +164,7 @@ export class UserDialogComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching roles', error);
-        this.error = 'Failed to load roles. Please try again.';
+        this.error = 'Échec du chargement des rôles. Veuillez réessayer.';
       }
     });
   }
@@ -289,18 +289,18 @@ export class UserDialogComponent implements OnInit {
       } else if (err.error) {
         this.error = typeof err.error === 'string'
           ? err.error
-          : 'Invalid user data. Check the console for details.';
+          : 'Données utilisateur invalides. Consultez la console pour plus de détails.';
       } else {
-        this.error = 'Invalid user data';
+        this.error = 'Données utilisateur invalides';
       }
     } else if (err.status === 500) {
-      this.error = 'Server error occurred. Please contact administrator.';
+      this.error = 'Erreur serveur. Veuillez contacter l\'administrateur.';
     } else if (err.status === 404) {
-      this.error = 'User not found';
+      this.error = 'Utilisateur non trouvé';
     } else if (err.status === 0) {
-      this.error = 'Network error - server may be offline';
+      this.error = 'Erreur réseau - le serveur est peut-être hors ligne';
     } else {
-      this.error = `Failed to process user (${err.status})`;
+      this.error = `Échec du traitement de l'utilisateur (${err.status})`;
     }
   }
 }

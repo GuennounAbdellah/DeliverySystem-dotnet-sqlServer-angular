@@ -1,13 +1,14 @@
 <app-layout>
   <div class="familles-container">
     <div class="header">
-      <h1>Familles Management</h1>
-      <button class="add-button" (click)="openAddFamilleDialog()">
+      <h1>Gestion des Familles</h1>
+      <button class="add-button" (click)="openAddFamilleDialog()" 
+              [disabled]="!canCreateFamilles()">
         Ajouter Famille
       </button>
     </div>
     
-    <div *ngIf="loading" class="loading">Loading familles...</div>
+    <div *ngIf="loading" class="loading">Chargement des familles...</div>
     
     <div *ngIf="error" class="error-message">
       {{ error }}
@@ -27,15 +28,17 @@
             <td>{{ famille.nom }}</td>
             <td>{{ famille.tva }}</td>
             <td>
-              <button class="edit-btn" (click)="familleDialog.openEdit(famille)">Modifier</button>
-              <button class="delete-btn" (click)="deleteFamille(famille.id)">Suprimer</button>
+              <button class="edit-btn" (click)="familleDialog.openEdit(famille)" 
+                      [disabled]="!canEditFamilles()">Modifier</button>
+              <button class="delete-btn" (click)="deleteFamille(famille.id)" 
+                      [disabled]="!canDeleteFamilles()">Suprimer</button>
             </td>
           </tr>
         </tbody>
       </table>
       
       <div class="no-familles" *ngIf="familles.length === 0">
-        No familles found.
+        Aucune famille trouvée.
       </div>
     </div>
   </div>

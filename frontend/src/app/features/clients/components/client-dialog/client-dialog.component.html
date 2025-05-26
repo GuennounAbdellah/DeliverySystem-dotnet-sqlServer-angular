@@ -1,7 +1,7 @@
 <div class="dialog-overlay" *ngIf="showDialog" (click)="close()">
   <div class="dialog" (click)="$event.stopPropagation()">
     <div class="dialog-header">
-      <h2>{{ editMode ? 'Edit Client' : 'Add New Client' }}</h2>
+      <h2>{{ editMode ? 'Modifier le client' : 'Ajouter un Client' }}</h2>
       <button class="close-button" (click)="close()">×</button>
     </div>
     
@@ -11,30 +11,30 @@
       </div>
       
       <div class="form-group">
-        <label for="nom">Name</label>
-        <input type="text" id="nom" appTextFormatter [(ngModel)]="client.nom" placeholder="Enter client name">
+        <label for="nom">Nom</label>
+        <input type="text" id="nom" appTextFormatter [(ngModel)]="client.nom" placeholder="Entrez le nom du client">
       </div>
       
       <div class="form-group">
-        <label for="telephone">Phone</label>
-        <input type="text" id="telephone" [(ngModel)]="client.telephone" placeholder="Enter phone number">
+        <label for="telephone">téléphone</label>
+        <input type="text" id="telephone" [(ngModel)]="client.telephone" placeholder="Entrez le numéro de téléphone">
       </div>
 
       <div class="form-group">
         <label for="fax">Fax</label>
-        <input type="text" id="fax" [(ngModel)]="client.fax" placeholder="Enter fax">
+        <input type="text" id="fax" [(ngModel)]="client.fax" placeholder="Entrez le fax">
       </div>
       
       <div class="form-group">
-        <label for="adresse">Address</label>
-        <textarea id="adresse" [(ngModel)]="client.adresse" placeholder="Enter address"></textarea>
+        <label for="adresse">Adresse</label>
+        <textarea id="adresse" [(ngModel)]="client.adresse" placeholder="Entrez l'adresse"></textarea>
       </div>
     </div>
     
     <div class="dialog-footer">
       <button class="cancel-button" (click)="close()">Cancel</button>
       <button class="submit-button" (click)="submit()">
-        {{ editMode ? 'Update Client' : 'Add Client' }}
+        {{ editMode ? 'Modifier le Client' : 'Ajouter un Client' }}
       </button>
     </div>
   </div>

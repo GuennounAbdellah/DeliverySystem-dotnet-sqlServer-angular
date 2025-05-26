@@ -5,6 +5,7 @@ import { LayoutComponent } from '../../../../shared/layout/layout.component';
 import { LivraisonDialogComponent } from '../livraison-dialog/livraison-dialog.component';
 import { Livraison } from '../../../../core/models/livraison.model';
 import { LivraisonService } from '../../services/livraison.service';
+import { PermissionService } from '../../../../core/services/PermissionService';
 
 @Component({
   selector: 'app-livraison-list',
@@ -22,8 +23,19 @@ export class LivraisonListComponent implements OnInit {
   
   constructor(
     private livraisonService: LivraisonService,
+    private permissionService: PermissionService,
   ) { }
   
+  // Permission check methods
+  canEditLivraisons(): boolean {
+    return this.permissionService.hasPermission('Livraisons.Edit');
+  }
+  canDeleteLivraisons(): boolean {
+    return this.permissionService.hasPermission('Livraisons.Delete');
+  }
+  canCreateLivraisons(): boolean {
+    return this.permissionService.hasPermission('Livraisons.Create');
+  }
   ngOnInit(): void {
     this.loadLivraisons();
   }

@@ -14,7 +14,6 @@ import { ArticleService } from '../../../articles/services/article.service';
 import { AuthService, AuthResponse } from '../../../../core/auth/auth.service';
 import { forkJoin, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-
 @Component({
   selector: 'app-livraison-dialog',
   standalone: true,
@@ -47,13 +46,12 @@ export class LivraisonDialogComponent implements OnInit {
     private livraisonService: LivraisonService,
     private clientService: ClientService,
     private articleService: ArticleService,
-    private authService: AuthService
+    private authService: AuthService,
   ) { }
 
   ngOnInit(): void {
     this.authResponse = this.authService.getCurrentUser();
   }
-
   open(): void {
     this.showDialog = true;
     this.editMode = false;
@@ -67,7 +65,7 @@ export class LivraisonDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load data for new livraison:', err);
-        this.error = 'Failed to load necessary data (clients/articles). Please try again.';
+        this.error = 'Échec du chargement des données nécessaires (clients/articles). Veuillez réessayer.'; // Modifié
       }
     });
   }
@@ -106,7 +104,7 @@ export class LivraisonDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load data for editing livraison:', err);
-        this.error = 'Failed to load necessary data for editing. Please try again.';
+        this.error = 'Échec du chargement des données pour la modification. Veuillez réessayer.'; // Modifié
       }
     });
   }
@@ -131,8 +129,8 @@ export class LivraisonDialogComponent implements OnInit {
       id: '',
       client: undefined,
       user: undefined,
-      rowVersion: '',          // Initialize with empty string 
-      rowVersionString: ''     // Initialize with empty string
+      rowVersion: '',          
+      rowVersionString: ''     
     };
   }
 
@@ -175,7 +173,7 @@ export class LivraisonDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load Compteure:', err);
-        this.error = 'Failed to load delivery counter';
+        this.error = 'Échec du chargement du compteur de livraison'; // Modifié
       }
     });
   }
@@ -184,13 +182,13 @@ export class LivraisonDialogComponent implements OnInit {
     this.error = null;
 
     if (!this.selectedArticleId) {
-      this.error = 'Please select an article';
+      this.error = 'Veuillez sélectionner un article'; // Modifié
       return;
     }
 
     const selectedArticle = this.articles.find(a => a.id === this.selectedArticleId);
     if (!selectedArticle) {
-      this.error = 'Selected article not found';
+      this.error = 'Article sélectionné non trouvé'; // Modifié
       return;
     }
 
@@ -209,8 +207,8 @@ export class LivraisonDialogComponent implements OnInit {
       puTtcRemise: 0,
       montantHt: 0,
       montantTtc: 0,
-      rowVersion: '',          // Initialize with empty string
-      rowVersionString: ''     // Initialize with empty string
+      rowVersion: '',          
+      rowVersionString: ''     
     };
 
     this.details.push(newDetail);
@@ -222,62 +220,43 @@ export class LivraisonDialogComponent implements OnInit {
     if (index >= 0 && index < this.details.length) {
       this.details.splice(index, 1);
       this.updateCalculations();
-
     }
   }
+
   updateCalculations(): void {
     let totalHt = 0;
     let totalTva = 0;
     let totalTtc = 0;
 
     for (const detail of this.details) {
-      // Get TVA rate (as a decimal)
       const tvaRate = (detail.article?.famille?.tva ?? 0) / 100;
-
-      // Calculate prices with discounts
-      // First apply HT discount to the base HT price
       const puHtAfterHtDiscount = detail.puHt * (1 - (detail.remiseHt / 100));
-
-      // Then calculate the TTC price after HT discount
       const puTtcAfterHtDiscount = puHtAfterHtDiscount * (1 + tvaRate);
-
-      // Apply TTC discount to get final TTC price with all discounts
       detail.puTtcRemise = puTtcAfterHtDiscount * (1 - (detail.remiseTtc / 100));
-
-      // Calculate final HT price with all discounts
       detail.puHtRemise = detail.puTtcRemise / (1 + tvaRate);
-
-      // For reference, store the original prices (rounded to 2 decimals)
-      detail.puTtc = +(puTtcAfterHtDiscount).toFixed(2); // so we take the HT and apply discount and tva to get TTC
+      detail.puTtc = +(puTtcAfterHtDiscount).toFixed(2);
       detail.puHt = +(detail.puHt).toFixed(2);
-
-      // Calculate total amounts
       detail.montantTtc = detail.puTtcRemise * detail.quantite;
       detail.montantHt = detail.puHtRemise * detail.quantite;
       let montantTva = detail.montantTtc - detail.montantHt;
 
-      // Add to totals
       totalHt += detail.montantHt;
       totalTtc += detail.montantTtc;
       totalTva += montantTva;
     }
 
-    // Set delivery totals
     this.livraison.totalHt = totalHt;
     this.livraison.totalTva = totalTva;
     this.livraison.totalTtc = totalTtc;
 
-    // Apply any discount/escompte to the final total
     if (this.livraison.escompte) {
       this.livraison.totalTtc -= this.livraison.escompte;
     }
   }
 
-
   submit(): void {
     if (!this.validateForm()) return;
 
-    // Prepare data for submission
     const livraisonToSubmit = this.prepareLivraisonForSubmission();
 
     if (this.editMode && this.originalLivraisonId) {
@@ -291,14 +270,13 @@ export class LivraisonDialogComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to increment compteur:', err);
-          this.error = 'Failed to increment delivery counter';
+          this.error = 'Échec de l\'incrémentation du compteur de livraison'; // Modifié
         }
       });
     }
   }
 
   private prepareLivraisonForSubmission(): LivraisonReq {
-    // Create a new object rather than mutating the original
     const livraisonCopy: LivraisonReq = {
       clientId: this.livraison.clientId,
       userId: this.livraison.userId,
@@ -357,7 +335,6 @@ export class LivraisonDialogComponent implements OnInit {
     console.error('Failed to submit livraison:', err);
 
     if (err.status === 400) {
-      // Log detailed error information
       console.error('Error details:', err.error);
 
       if (err.error?.message) {
@@ -365,39 +342,38 @@ export class LivraisonDialogComponent implements OnInit {
       } else if (err.error) {
         this.error = typeof err.error === 'string'
           ? err.error
-          : 'Invalid delivery data. Check the console for details.';
+          : 'Données de livraison invalides. Consultez la console pour plus de détails.'; // Modifié
 
-        // If it's an object, try to extract more useful information
         if (typeof err.error === 'object') {
           console.log('Validation errors:', JSON.stringify(err.error));
         }
       } else {
-        this.error = 'Invalid delivery data';
+        this.error = 'Données de livraison invalides'; // Modifié
       }
     } else if (err.status === 500) {
-      this.error = 'Server error occurred. Please contact administrator.';
+      this.error = 'Une erreur serveur est survenue. Veuillez contacter l\'administrateur.'; // Modifié
     } else if (err.status === 404) {
-      this.error = 'Delivery not found';
+      this.error = 'Livraison non trouvée'; // Modifié
     } else if (err.status === 0) {
-      this.error = 'Network error - server may be offline';
+      this.error = 'Erreur réseau - le serveur est peut-être hors ligne'; // Modifié
     } else {
-      this.error = `Failed to process delivery (${err.status})`;
+      this.error = `Échec du traitement de la livraison (${err.status})`; // Modifié
     }
   }
 
   validateForm(): boolean {
     if (!this.livraison.clientId) {
-      this.error = 'Client is required';
+      this.error = 'Le client est requis'; // Modifié
       return false;
     }
 
     if (!this.livraison.numero) {
-      this.error = 'Number is required';
+      this.error = 'Le numéro est requis'; // Modifié
       return false;
     }
 
     if (this.details.length === 0) {
-      this.error = 'At least one detail is required';
+      this.error = 'Au moins un détail est requis'; // Modifié
       return false;
     }
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { PermissionService } from '../../core/services/PermissionService';
 
 @Component({
   selector: 'app-sidebar',
@@ -17,8 +18,29 @@ export class SidebarComponent {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private permissionService: PermissionService
   ) {}
+  
+  canViewArticles(): boolean {
+    return this.permissionService.hasPermission('Articles.View');
+  }
+  canViewClients(): boolean {
+    return this.permissionService.hasPermission('Clients.View');
+  }
+  canViewFamilles(): boolean {
+    return this.permissionService.hasPermission('Familles.View');
+  }
+  canViewLivraisons(): boolean {
+    return this.permissionService.hasPermission('Livraisons.View');
+  }
+  canViewUnites(): boolean {
+    return this.permissionService.hasPermission('Unites.View');
+  }
+  canViewUsers(): boolean {
+    return this.permissionService.hasPermission('Users.View');
+  }
+
   
   logout(): void {
     this.showLogoutConfirmation = true;

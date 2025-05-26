@@ -5,7 +5,7 @@ import { LayoutComponent } from '../../../../shared/layout/layout.component';
 import { ClientDialogComponent } from '../client-dialog/client-dialog.component';
 import { Client } from '../../../../core/models/client.model';
 import { ClientService } from '../../services/client.service';
-
+import { PermissionService } from '../../../../core/services/PermissionService';
 @Component({
   selector: 'app-client-list',
   standalone: true,
@@ -22,12 +22,23 @@ export class ClientListComponent implements OnInit {
   
   constructor(
     private clientService: ClientService,
+    private permissionService: PermissionService,
   ) { }
   
   ngOnInit(): void {
     this.loadClients();
   }
   
+  // Permission check methods
+  canCreateClients(): boolean {
+    return this.permissionService.hasPermission('Clients.Create');
+  }
+  canEditClients(): boolean {
+    return this.permissionService.hasPermission('Clients.Edit');
+  }
+  canDeleteClients(): boolean {
+    return this.permissionService.hasPermission('Clients.Delete');
+  }
   loadClients(): void {
     this.loading = true;
     this.clientService.getClients().subscribe({
@@ -38,7 +49,7 @@ export class ClientListComponent implements OnInit {
 
       },
       error: (err) => {
-        this.error = 'Failed to load clients';
+        this.error = 'Échec du chargement des clients';
         this.loading = false;
         console.error(err);
       }
@@ -52,14 +63,14 @@ export class ClientListComponent implements OnInit {
   
   deleteClient(id: string): void {
     
-    if (confirm('Are you sure you want to delete this client?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
       this.clientService.deleteClient(id).subscribe({
         next: () => {
           this.clients = this.clients.filter(client => client.id !== id);
         },
         error: (err) => {
           console.error('Failed to delete client:', err);
-          this.error = 'Failed to delete client. It may be referenced by deliveries.';
+          this.error = 'Échec de la suppression du client. Il peut être référencé par des livraisons.';
         }
       });
     }

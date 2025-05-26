@@ -1,13 +1,15 @@
 <app-layout>
   <div class="livraisons-container">
     <div class="header">
-      <h1>Livraisons Management</h1>
-      <button class="add-button" (click)="openAddLivraisonDialog()">
+      <h1>Gestion des Livraisons</h1>
+      <button class="add-button" 
+              (click)="openAddLivraisonDialog()"
+              [disabled]="!canCreateLivraisons()">
         Ajouter Livraison
       </button>
     </div>
     
-    <div *ngIf="loading" class="loading">Loading livraisons...</div>
+    <div *ngIf="loading" class="loading">Chargement des livraisons...</div>
     
     <div *ngIf="error" class="error-message">
       {{ error }}
@@ -33,15 +35,19 @@
             <td>{{ livraison.totalHt }}</td>
             <td>{{ livraison.totalTtc}}</td>
             <td>
-              <button class="edit-btn" (click)="livraisonDialog.openEdit(livraison)">Modifier</button>
-              <button class="delete-btn" (click)="livraison.id && deleteLivraison(livraison.id)">Suprimer</button>
+              <button class="edit-btn" 
+                      (click)="livraisonDialog.openEdit(livraison)"
+                      [disabled]="!canEditLivraisons()">Modifier</button>
+              <button class="delete-btn" 
+                      (click)="livraison.id && deleteLivraison(livraison.id)"
+                      [disabled]="!canDeleteLivraisons()">Suprimer</button>
             </td>
           </tr>
         </tbody>
       </table>
       
       <div class="no-livraisons" *ngIf="livraisons.length === 0">
-        No livraisons found.
+        Aucune livraison trouvée.
       </div>
     </div>
   </div>

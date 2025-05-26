@@ -5,6 +5,7 @@ import { LayoutComponent } from '../../../../shared/layout/layout.component';
 import { UniteDialogComponent } from '../unite-dialog/unite-dialog.component';
 import { Unite } from '../../../../core/models/unite.model';
 import { UniteService } from '../../services/unite.service';
+import { PermissionService } from '../../../../core/services/PermissionService';
 
 @Component({
   selector: 'app-unite-list',
@@ -22,8 +23,19 @@ export class UniteListComponent implements OnInit {
   
   constructor(
     private uniteService: UniteService,
+    private permissionService: PermissionService,
   ) { }
   
+  // Permission check methods
+  canCreateUnites(): boolean {
+    return this.permissionService.hasPermission('Unites.Create');
+  }
+  canEditUnites(): boolean {
+    return this.permissionService.hasPermission('Unites.Edit');
+  }
+  canDeleteUnites(): boolean {
+    return this.permissionService.hasPermission('Unites.Delete');
+  }
   ngOnInit(): void {
     this.loadUnites();
   }
@@ -36,7 +48,7 @@ export class UniteListComponent implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        this.error = 'Failed to load unites';
+        this.error = 'Echec à charger les unites';
         this.loading = false;
         console.error(err);
       }
@@ -48,14 +60,14 @@ export class UniteListComponent implements OnInit {
   }
   
   deleteUnite(id: string): void {
-    if (confirm('Are you sure you want to delete this unite?')) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer cette unité ?')) {
       this.uniteService.deleteUnite(id).subscribe({
         next: () => {
           this.unites = this.unites.filter(unite => unite.id !== id);
         },
         error: (err) => {
           console.error('Failed to delete unite:', err);
-          this.error = 'Failed to delete unite. It may be referenced by articles.';
+          this.error = 'Echec à supprimer l\'unité. Elle peut être référencée par des articles.';
         }
       });
     }
