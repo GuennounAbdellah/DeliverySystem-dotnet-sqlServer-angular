@@ -70,10 +70,13 @@ export class AuthService {
         }
         return null; 
       }
-
-
+    getCurrentUserId(): string | null {
+        const currentUser = this.getCurrentUser();
+        return currentUser ? currentUser.id : null;
+    }  
     getToken(): string | null {
         const currentUser = this.getCurrentUser();
         return currentUser ? currentUser.token : null;
     }
+ 
 }

@@ -2,17 +2,13 @@
     <main>
       <div class="content">
         <section class="main-section">
-          <h2>Bienvenue chez Groupe IT</h2>
+          <h2>Bienvenue chez Group IT</h2>
           <p>Entrez vos identifiants pour accéder au système</p>
         </section>
         
         <section class="login-section">
           <div class="login-card">
             <h2>Connexion</h2>
-            
-            <div *ngIf="error" class="error-message alert">
-              {{ error }}
-            </div>
             
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
               <!-- Username -->
@@ -39,7 +35,11 @@
                 <div class="error" *ngIf="submitted && f['password'].errors?.['required']">
                   Le mot de passe est requis
                 </div>
+                <div *ngIf="error" class="error-message">
+                  {{ error }}
+                </div>
               </div>
+              
               <button type="submit" [disabled]="loading" class="login-button">
                 <span *ngIf="loading">Connexion en cours ...</span>
                 <span *ngIf="!loading">Connexion</span>

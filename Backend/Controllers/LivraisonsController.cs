@@ -8,7 +8,6 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class LivraisonsController : ControllerBase
     {
         private readonly ILivraisonService _livraisonService;
@@ -19,6 +18,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [RoleOrAdmin("Livraisons.View")]
         public async Task<IActionResult> GetAllLivraisons()
         {
             try
@@ -33,6 +33,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [RoleOrAdmin("Livraisons.View")]
         public async Task<IActionResult> GetLivraisonById(Guid id)
         {
             try
@@ -50,6 +51,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
+        [RoleOrAdmin("Livraisons.Create")]
         public async Task<IActionResult> CreateLivraison([FromBody] LivraisonCreateRequest livraison)
         {
             if (livraison == null)
@@ -71,6 +73,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
+        [RoleOrAdmin("Livraisons.Edit")]
         public async Task<IActionResult> UpdateLivraison(Guid id, [FromBody] LivraisonCreateRequest livraison)
         {   
             if (livraison == null)
@@ -93,6 +96,7 @@ namespace Backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [RoleOrAdmin("Livraisons.Delete")]
         public async Task<IActionResult> DeleteLivraison(Guid id)
         {
             try
@@ -110,6 +114,7 @@ namespace Backend.Controllers
             }
         }
         [HttpGet("compteur")]
+        [Authorize]
         public async Task<IActionResult> GetCompteur()
         {
             try
@@ -123,6 +128,7 @@ namespace Backend.Controllers
             }
         }
         [HttpPut("compteur")]
+        [Authorize]
         public async Task<IActionResult> UpdateCompteur()
         {
             try

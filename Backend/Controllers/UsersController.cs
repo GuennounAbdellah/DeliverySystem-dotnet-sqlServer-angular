@@ -26,6 +26,7 @@ namespace Backend.Controllers
             return Ok(response);
         }
         [HttpGet("{id}")]
+        [RoleOrAdmin("Users.View")]
         public async Task<IActionResult> GetUserById(Guid id)
         {
             var user = await _userService.GetUserById(id);
@@ -34,6 +35,7 @@ namespace Backend.Controllers
             return Ok(user);
         }
         [HttpGet]
+        [RoleOrAdmin("Users.View")]
         public async Task<IActionResult> GetAllUsers()
         {
             try
@@ -48,10 +50,11 @@ namespace Backend.Controllers
 
         }
         [HttpPost]
+        [RoleOrAdmin("Users.Create")]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateRequest model)
         {
             if (model == null)
-                return BadRequest(new { message = "User cannot be nuss" });
+                return BadRequest(new { message = "User cannot be null" });
             try
             {
                 var createdUser = await _userService.CreateUser(model);
@@ -67,6 +70,7 @@ namespace Backend.Controllers
             }
         }
         [HttpPut("{id}")]
+        [RoleOrAdmin("Users.Edit")]
         public async Task<IActionResult> UpdateUser(Guid id, [FromBody] UserUpdateRequest model)
         {
             if (model == null)
@@ -89,6 +93,7 @@ namespace Backend.Controllers
             }
         }
         [HttpDelete("{id}")] 
+        [RoleOrAdmin("Users.Delete")]
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             try
@@ -107,6 +112,7 @@ namespace Backend.Controllers
 
         }
         [HttpGet("Roles")]
+        [Authorize]
         public async Task<IActionResult> GetAllRoles()
         {
             try
@@ -118,7 +124,6 @@ namespace Backend.Controllers
             {
                 return StatusCode(500, new { message = "An error occurred while fetching the roles.", error = ex.Message });
             }
-
         }
     }
 } 

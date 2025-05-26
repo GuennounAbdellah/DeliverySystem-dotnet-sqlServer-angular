@@ -64,9 +64,9 @@ namespace Backend.Services
             {
                 new Claim("id", user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User"),
+                new Claim("isAdmin", user.IsAdmin.ToString())
             };
-
+ 
             // Fetch the user with roles if not already included
             if (user.RolesUsers == null || !user.RolesUsers.Any())
             {
@@ -88,7 +88,7 @@ namespace Backend.Services
                 {
                     if (roleUser.Role != null && roleUser.Valeur)
                     {
-                        claims.Add(new Claim("role", roleUser.Role.Libelle));
+                        claims.Add(new Claim(ClaimTypes.Role, roleUser.Role.Libelle));
                     }
                 }
             }
@@ -298,6 +298,7 @@ namespace Backend.Services
         {
             return await _context.Roles.ToListAsync();
         }
+
     }
     
 

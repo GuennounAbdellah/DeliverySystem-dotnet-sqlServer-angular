@@ -17,6 +17,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [RoleOrAdmin("Clients.View")]
         public async Task<IActionResult> GetAllClients()
         {
             try
@@ -31,6 +32,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [RoleOrAdmin("Clients.View")]
         public async Task<IActionResult> GetClientById(Guid id)
         {
             try
@@ -48,6 +50,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
+        [RoleOrAdmin("Clients.Create")]
         public async Task<IActionResult> CreateClient([FromBody] Client client)
         {
             if (client == null)
@@ -69,6 +72,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
+        [RoleOrAdmin("Clients.Edit")]
         public async Task<IActionResult> UpdateClient(Guid id, [FromBody] Client client)
         {
             if (client == null)
@@ -90,6 +94,7 @@ namespace Backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [RoleOrAdmin("Clients.Delete")]
         public async Task<IActionResult> DeleteClient(Guid id)
         {
             try

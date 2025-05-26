@@ -8,7 +8,6 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class ArticlesController : ControllerBase
     {
         private readonly IArticleService _articleService;
@@ -19,6 +18,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [RoleOrAdmin("Articles.View")]
         public async Task<IActionResult> GetAllArticles()
         {
             try
@@ -33,6 +33,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [RoleOrAdmin("Articles.View")]
         public async Task<IActionResult> GetArticleById(Guid id)
         {
             try
@@ -50,6 +51,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
+        [RoleOrAdmin("Articles.Create")]
         public async Task<IActionResult> CreateArticle([FromBody] ArticleCreateRequest article)
         {
             if (article == null)
@@ -71,6 +73,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
+        [RoleOrAdmin("Articles.Edit")]
         public async Task<IActionResult> UpdateArticle(Guid id, [FromBody] ArticleCreateRequest article)
         {
             if (article == null)
@@ -92,6 +95,7 @@ namespace Backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [RoleOrAdmin("Articles.Delete")]
         public async Task<IActionResult> DeleteArticle(Guid id)
         {
             try

@@ -1,7 +1,7 @@
 <div class="dialog-overlay" *ngIf="showDialog" (click)="close()">
   <div class="dialog" (click)="$event.stopPropagation()">
     <div class="dialog-header">
-      <h2>{{ editMode ? 'Edit Article' : 'Add New Article' }}</h2>
+      <h2>{{ editMode ? "Modifier l'article" : "Ajouter l'rticle" }}</h2>
       <button class="close-button" (click)="close()">×</button>
     </div>
     
@@ -11,7 +11,7 @@
       </div>
       
       <div *ngIf="loadingLists" class="loading-message">
-        Loading data...
+        Chargement des données...
       </div>
       
       <div class="form-group">
@@ -64,7 +64,7 @@
     <div class="dialog-footer">
       <button class="cancel-button" (click)="close()">Cancel</button>
       <button class="submit-button" (click)="submit()">
-        {{ editMode ? 'Update Article' : 'Add Article' }}
+        {{ editMode ? "Modifier l'article" : "Ajouter l'rticle" }}
       </button>
     </div>
   </div>

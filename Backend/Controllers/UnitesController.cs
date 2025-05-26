@@ -7,7 +7,6 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class UnitesController : ControllerBase
     {
         private readonly IUniteService _uniteService;
@@ -18,6 +17,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [RoleOrAdmin("Unites.View")]
         public async Task<IActionResult> GetAllUnites()
         {
             try
@@ -33,6 +33,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [RoleOrAdmin("Unites.View")]
         public async Task<IActionResult> GetUniteById(Guid id)
         {
             try
@@ -50,6 +51,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
+        [RoleOrAdmin("Unites.Create")]
         public async Task<IActionResult> CreateUnite([FromBody] Unite unite)
         {
             if (unite == null)
@@ -71,6 +73,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
+        [RoleOrAdmin("Unites.Edit")]
         public async Task<IActionResult> UpdateUnite(Guid id, [FromBody] Unite unite)
         {
             if (unite == null)
@@ -92,6 +95,7 @@ namespace Backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [RoleOrAdmin("Unites.Delete")]
         public async Task<IActionResult> DeleteUnite(Guid id)
         {
             try

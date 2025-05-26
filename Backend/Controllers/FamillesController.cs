@@ -7,7 +7,6 @@ namespace Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
     public class FamillesController : ControllerBase
     {
         private readonly IFamilleService _familleService;
@@ -18,6 +17,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
+        [RoleOrAdmin("Familles.View")]
         public async Task<IActionResult> GetAllFamilles()
         {
             try
@@ -32,6 +32,7 @@ namespace Backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [RoleOrAdmin("Familles.View")]
         public async Task<IActionResult> GetFamilleById(Guid id)
         {
             try
@@ -49,6 +50,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
+        [RoleOrAdmin("Familles.Create")]
         public async Task<IActionResult> CreateFamille([FromBody] Famille famille)
         {
             if (famille == null)
@@ -70,6 +72,7 @@ namespace Backend.Controllers
         }
 
         [HttpPut("{id}")]
+        [RoleOrAdmin("Familles.Edit")]
         public async Task<IActionResult> UpdateFamille(Guid id, [FromBody] Famille famille)
         {
             if (famille == null)
@@ -91,6 +94,7 @@ namespace Backend.Controllers
         }
 
         [HttpDelete("{id}")]
+        [RoleOrAdmin("Familles.Delete")]
         public async Task<IActionResult> DeleteFamille(Guid id)
         {
             try
