@@ -6,6 +6,9 @@ import { LivraisonDialogComponent } from '../livraison-dialog/livraison-dialog.c
 import { Livraison } from '../../../../core/models/livraison.model';
 import { LivraisonService } from '../../services/livraison.service';
 import { PermissionService } from '../../../../core/services/PermissionService';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { AuditService } from '../../../../core/services/audit.service';
+
 
 @Component({
   selector: 'app-livraison-list',
@@ -24,6 +27,8 @@ export class LivraisonListComponent implements OnInit {
   constructor(
     private livraisonService: LivraisonService,
     private permissionService: PermissionService,
+    private authService: AuthService,
+    private auditService: AuditService
   ) { }
   
   // Permission check methods
@@ -70,6 +75,18 @@ export class LivraisonListComponent implements OnInit {
           this.error = 'Failed to delete livraison.';
         }
       });
+    const userId = this.authService?.getCurrentUserId();
+    if (userId) {
+      const numeroLivraison = this.livraisonDialog.livraison.numero;
+      this.auditService.postAudit(userId, 'Suppression', numeroLivraison).subscribe({
+        next: () => {
+          console.log('Audit posted successfully');
+        },
+        error: (err) => {
+          console.error('Failed to post audit:', err);
+        }
+      });
+    }
     }
   }
 }

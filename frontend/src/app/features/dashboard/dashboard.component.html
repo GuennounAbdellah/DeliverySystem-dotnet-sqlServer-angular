@@ -1,3 +1,298 @@
 <app-layout>
-    <p>dashboard works!</p>
+  <div class="dashboard-container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Chargement du tableau de bord...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-container">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadDashboardData()">Réessayer</button>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="!loading && !error" class="dashboard-content">
+      <!-- Header -->
+      <div class="dashboard-header">
+        <div class="welcome-section">
+          <h1>{{ getGreeting() }}, {{ currentUser?.username || 'Utilisateur' }}!</h1>
+          <p>Voici un aperçu de votre activité aujourd'hui</p>
+          <span *ngIf="isAdmin" class="admin-badge">
+            <i class="fas fa-crown"></i>
+            Administrateur
+          </span>
+        </div>
+        <div class="date-section">
+          <div class="current-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span>{{ currentDate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Stats Cards -->
+      <div class="stats-grid" [class.admin-grid]="isAdmin">
+        <div class="stat-card clients">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.totalClients }}</h3>
+            <p>Clients Total</p>
+            <span class="stat-change positive">+5% ce mois</span>
+          </div>
+          <button class="stat-action" (click)="navigateToClients()">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="stat-card articles">
+          <div class="stat-icon">
+            <i class="fas fa-boxes"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.totalArticles }}</h3>
+            <p>Articles en Stock</p>
+            <span class="stat-change negative">{{ lowStockArticles.length }} stock faible</span>
+          </div>
+          <button class="stat-action" (click)="navigateToArticles()">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="stat-card deliveries">
+          <div class="stat-icon">
+            <i class="fas fa-truck"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.todayDeliveries }}</h3>
+            <p>Livraisons Aujourd'hui</p>
+            <span class="stat-change positive">+12% vs hier</span>
+          </div>
+          <button class="stat-action" (click)="navigateToLivraisons()">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div class="stat-card revenue">
+          <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.monthlyRevenue | number:'1.0-0' }} DH</h3>
+            <p>CA du Mois</p>
+            <span class="stat-change positive">+8% ce mois</span>
+          </div>
+          <button class="stat-action">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Admin-only Audit Stats -->
+        <div *ngIf="isAdmin" class="stat-card audit-logs">
+          <div class="stat-icon">
+            <i class="fas fa-clipboard-list"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.totalAuditLogs }}</h3>
+            <p>Logs d'Audit Total</p>
+            <span class="stat-change info">{{ stats.todayAuditLogs }} aujourd'hui</span>
+          </div>
+          <button class="stat-action" (click)="navigateToAuditLogs()">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <div *ngIf="isAdmin" class="stat-card users">
+          <div class="stat-icon">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ stats.totalUsers }}</h3>
+            <p>Utilisateurs Actifs</p>
+            <span class="stat-change positive">Système sécurisé</span>
+          </div>
+          <button class="stat-action">
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="main-grid" [class.admin-layout]="isAdmin">
+        <!-- Revenue Chart -->
+        <div class="chart-card revenue-chart">
+          <div class="card-header">
+            <h3>Évolution du Chiffre d'Affaires</h3>
+            <div class="chart-controls">
+              <select class="period-selector">
+                <option value="6months">6 derniers mois</option>
+                <option value="year">Cette année</option>
+                <option value="quarter">Ce trimestre</option>
+              </select>
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Delivery Status Chart -->
+        <div class="chart-card delivery-chart">
+          <div class="card-header">
+            <h3>Statut des Livraisons</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="deliveryChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Admin Audit Chart -->
+        <div *ngIf="isAdmin" class="chart-card audit-chart">
+          <div class="card-header">
+            <h3>Activité d'Audit (7 derniers jours)</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="auditChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Today's Deliveries -->
+        <div class="list-card deliveries-today">
+          <div class="card-header">
+            <h3>Livraisons d'Aujourd'hui</h3>
+            <span class="badge">{{ todayLivraisons.length }}</span>
+          </div>
+          <div class="card-content">
+            <div *ngIf="todayLivraisons.length === 0" class="empty-state">
+              <i class="fas fa-truck"></i>
+              <p>Aucune livraison aujourd'hui</p>
+            </div>
+            <div *ngFor="let livraison of todayLivraisons" class="delivery-item">
+              <div class="delivery-info">
+                <h4>{{ livraison.numero }}</h4>
+                <p>{{ livraison.client?.nom }}</p>
+              </div>
+              <div class="delivery-amount">
+                <span>{{ livraison.totalTtc | number:'1.2-2' }} DH</span>
+              </div>
+              <div class="delivery-status">
+                <span class="status-badge delivered">Livré</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tasks Panel -->
+        <div class="list-card tasks-panel">
+          <div class="card-header">
+            <h3>Tâches à Faire</h3>
+            <button class="add-task-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="card-content">
+            <div *ngFor="let task of tasks" class="task-item" [class.completed]="task.status === 'completed'">
+              <div class="task-checkbox">
+                <input type="checkbox" 
+                       [checked]="task.status === 'completed'"
+                       (change)="toggleTask(task.id)">
+              </div>
+              <div class="task-content">
+                <h4>{{ task.title }}</h4>
+                <div class="task-meta">
+                  <span class="priority-indicator" [style.background-color]="getPriorityColor(task.priority)"></span>
+                  <span class="due-date">{{ formatDateTime(task.dueDate) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin Recent Audit Logs -->
+        <div *ngIf="isAdmin" class="list-card audit-logs-panel">
+          <div class="card-header">
+            <h3>Activité Récente</h3>
+            <span class="badge info">{{ recentAuditLogs.length }}</span>
+          </div>
+          <div class="card-content">
+            <div *ngIf="recentAuditLogs.length === 0" class="empty-state">
+              <i class="fas fa-clipboard-list"></i>
+              <p>Aucune activité récente</p>
+            </div>
+            <div *ngFor="let log of recentAuditLogs" class="audit-item">
+              <div class="audit-icon">
+                <i class="fas fa-user-clock" [style.color]="getActionColor(log.action)"></i>
+              </div>
+              <div class="audit-info">
+                <h4>{{ log.action }}</h4>
+                <p>{{ log.user?.username || 'Utilisateur inconnu' }}</p>
+                <span class="audit-meta">
+                  Livraison: {{ log.numeroLivraison }} • {{ getTimeAgo(log.timestamp) }}
+                </span>
+              </div>
+              <div class="audit-status">
+                <span class="status-badge" [style.background-color]="getActionColor(log.action)">
+                  {{ log.action }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Low Stock Alert -->
+        <div class="list-card stock-alert" *ngIf="lowStockArticles.length > 0">
+          <div class="card-header">
+            <h3>Stock Faible</h3>
+            <span class="badge alert">{{ lowStockArticles.length }}</span>
+          </div>
+          <div class="card-content">
+            <div *ngFor="let article of lowStockArticles" class="stock-item">
+              <div class="stock-info">
+                <h4>{{ article.designation }}</h4>
+                <p>Réf: {{ article.reference }}</p>
+              </div>
+              <div class="stock-level">
+                <span class="current-stock">{{ article.stock }}</span>
+                <span class="min-stock">/ 10</span>
+              </div>
+              <div class="stock-status">
+                <span class="status-badge critical">Critique</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Clients -->
+        <div class="list-card recent-clients">
+          <div class="card-header">
+            <h3>Clients Récents</h3>
+          </div>
+          <div class="card-content">
+            <div *ngIf="recentClients.length === 0" class="empty-state">
+              <i class="fas fa-users"></i>
+              <p>Aucun client récent</p>
+            </div>
+            <div *ngFor="let client of recentClients" class="client-item">
+              <div class="client-avatar">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="client-info">
+                <h4>{{ client.nom }}</h4>
+                <p>{{ client.telephone }}</p>
+              </div>
+              <div class="client-action">
+                <button class="contact-btn">
+                  <i class="fas fa-phone"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </app-layout>

@@ -11,7 +11,9 @@ import { Article } from '../../../../core/models/article.model';
 import { LivraisonService } from '../../services/livraison.service';
 import { ClientService } from '../../../clients/services/client.service';
 import { ArticleService } from '../../../articles/services/article.service';
-import { AuthService, AuthResponse } from '../../../../core/auth/auth.service';
+import { AuthService , AuthResponse} from '../../../../core/auth/auth.service';
+import { AuditService } from '../../../../core/services/audit.service';
+
 import { forkJoin, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 @Component({
@@ -47,6 +49,7 @@ export class LivraisonDialogComponent implements OnInit {
     private clientService: ClientService,
     private articleService: ArticleService,
     private authService: AuthService,
+    private auditService: AuditService
   ) { }
 
   ngOnInit(): void {
@@ -65,7 +68,7 @@ export class LivraisonDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load data for new livraison:', err);
-        this.error = 'Échec du chargement des données nécessaires (clients/articles). Veuillez réessayer.'; // Modifié
+        this.error = 'Échec du chargement des données nécessaires (clients/articles). Veuillez réessayer.';
       }
     });
   }
@@ -104,7 +107,7 @@ export class LivraisonDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load data for editing livraison:', err);
-        this.error = 'Échec du chargement des données pour la modification. Veuillez réessayer.'; // Modifié
+        this.error = 'Échec du chargement des données pour la modification. Veuillez réessayer.';
       }
     });
   }
@@ -161,6 +164,28 @@ export class LivraisonDialogComponent implements OnInit {
     }
   }
 
+  private postAuditForLivraison(action: string): void {
+    const userId = this.authService.getCurrentUserId();
+    if (userId) {
+      const numeroLivraison = this.livraison.numero;
+      this.auditService.postAudit(userId, action, numeroLivraison).subscribe({
+        next: () => {
+          console.log('Audit posted successfully');
+        },
+        error: (err) => {
+          // Handle 201 Created as success, not error
+          if (err.status === 201) {
+            console.log('Audit posted successfully with 201 status');
+          } else {
+            console.error('Failed to post audit:', err);
+          }
+        }
+      });
+    }
+  }
+
+  
+
   private generateLivraisonNumber(): void {
     this.livraisonService.getCompteureLivraison().subscribe({
       next: (compteur) => {
@@ -173,7 +198,7 @@ export class LivraisonDialogComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to load Compteure:', err);
-        this.error = 'Échec du chargement du compteur de livraison'; // Modifié
+        this.error = 'Échec du chargement du compteur de livraison';
       }
     });
   }
@@ -182,13 +207,13 @@ export class LivraisonDialogComponent implements OnInit {
     this.error = null;
 
     if (!this.selectedArticleId) {
-      this.error = 'Veuillez sélectionner un article'; // Modifié
+      this.error = 'Veuillez sélectionner un article';
       return;
     }
 
     const selectedArticle = this.articles.find(a => a.id === this.selectedArticleId);
     if (!selectedArticle) {
-      this.error = 'Article sélectionné non trouvé'; // Modifié
+      this.error = 'Article sélectionné non trouvé';
       return;
     }
 
@@ -214,6 +239,7 @@ export class LivraisonDialogComponent implements OnInit {
     this.details.push(newDetail);
     this.selectedArticleId = '';
     this.updateCalculations();
+    
   }
 
   removeDetailLivraison(index: number): void {
@@ -270,7 +296,7 @@ export class LivraisonDialogComponent implements OnInit {
         },
         error: (err) => {
           console.error('Failed to increment compteur:', err);
-          this.error = 'Échec de l\'incrémentation du compteur de livraison'; // Modifié
+          this.error = 'Échec de l\'incrémentation du compteur de livraison';
         }
       });
     }
@@ -316,6 +342,7 @@ export class LivraisonDialogComponent implements OnInit {
       next: (newLivraison) => {
         this.close();
         this.livraisonAdded.emit(newLivraison);
+        this.postAuditForLivraison('Création');
       },
       error: (err) => this.handleSubmissionError(err)
     });
@@ -326,6 +353,7 @@ export class LivraisonDialogComponent implements OnInit {
       next: (updatedLivraison) => {
         this.close();
         this.livraisonUpdated.emit(updatedLivraison);
+        this.postAuditForLivraison('Mise à jour');
       },
       error: (err) => this.handleSubmissionError(err)
     });
@@ -342,38 +370,38 @@ export class LivraisonDialogComponent implements OnInit {
       } else if (err.error) {
         this.error = typeof err.error === 'string'
           ? err.error
-          : 'Données de livraison invalides. Consultez la console pour plus de détails.'; // Modifié
+          : 'Données de livraison invalides. Consultez la console pour plus de détails.';
 
         if (typeof err.error === 'object') {
           console.log('Validation errors:', JSON.stringify(err.error));
         }
       } else {
-        this.error = 'Données de livraison invalides'; // Modifié
+        this.error = 'Données de livraison invalides';
       }
     } else if (err.status === 500) {
-      this.error = 'Une erreur serveur est survenue. Veuillez contacter l\'administrateur.'; // Modifié
+      this.error = 'Une erreur serveur est survenue. Veuillez contacter l\'administrateur.';
     } else if (err.status === 404) {
-      this.error = 'Livraison non trouvée'; // Modifié
+      this.error = 'Livraison non trouvée';
     } else if (err.status === 0) {
-      this.error = 'Erreur réseau - le serveur est peut-être hors ligne'; // Modifié
+      this.error = 'Erreur réseau - le serveur est peut-être hors ligne';
     } else {
-      this.error = `Échec du traitement de la livraison (${err.status})`; // Modifié
+      this.error = `Échec du traitement de la livraison (${err.status})`;
     }
   }
 
   validateForm(): boolean {
     if (!this.livraison.clientId) {
-      this.error = 'Le client est requis'; // Modifié
+      this.error = 'Le client est requis';
       return false;
     }
 
     if (!this.livraison.numero) {
-      this.error = 'Le numéro est requis'; // Modifié
+      this.error = 'Le numéro est requis';
       return false;
     }
 
     if (this.details.length === 0) {
-      this.error = 'Au moins un détail est requis'; // Modifié
+      this.error = 'Au moins un détail est requis';
       return false;
     }
 

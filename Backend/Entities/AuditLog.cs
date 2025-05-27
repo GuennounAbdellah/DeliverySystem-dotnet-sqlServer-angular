@@ -10,7 +10,7 @@ namespace Backend.Entities
 
             [ForeignKey(nameof(User))]
             public Guid UserId { get; set; }
-            public virtual required User User { get; set; }
+            public virtual User? User { get; set; }
  
             public string NumeroLivraison { get; set; } = "";
             public string Action { get; set; } = "";

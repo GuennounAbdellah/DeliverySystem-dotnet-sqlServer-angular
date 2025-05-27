@@ -54,6 +54,9 @@ builder.Services.AddScoped<IFamilleService, FamilleService>();
 builder.Services.AddScoped<IUniteService, UniteService>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
 builder.Services.AddScoped<ILivraisonService, LivraisonService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+
+
 // Register DbContext for EF Core
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
