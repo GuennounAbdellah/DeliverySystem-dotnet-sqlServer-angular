@@ -80,4 +80,7 @@ export class AuthService {
         const currentUser = this.getCurrentUser();
         return currentUser ? currentUser.token : null;
     }
+    getAuditsByUserId(userId: string, limit: number = 5): Observable<any[]> {
+      return this.http.get<any[]>(`${this.apiUrl}/user/${userId}/latest/${limit}`);
+    }
 }

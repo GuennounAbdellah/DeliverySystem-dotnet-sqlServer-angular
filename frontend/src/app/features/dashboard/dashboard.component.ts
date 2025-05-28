@@ -1,311 +1,352 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { Router } from '@angular/router';
+import { Component, OnInit, OnDestroy, LOCALE_ID, Inject } from '@angular/core';
+import { CommonModule, registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr';
+import { FormsModule } from '@angular/forms';
+import { LayoutComponent } from '../../shared/layout/layout.component';
 import { AuthService } from '../../core/auth/auth.service';
-import { LayoutComponent } from "../../shared/layout/layout.component";
-import { LivraisonService } from '../livraisons/services/livraison.service';
-import { ClientService } from '../clients/services/client.service';
-import { ArticleService } from '../articles/services/article.service';
 import { AuditService } from '../../core/services/audit.service';
-import { Livraison } from '../../core/models/livraison.model';
-import { Client } from '../../core/models/client.model';
-import { Article } from '../../core/models/article.model';
-import { Chart, registerables } from 'chart.js';
+import { LivraisonService } from '../livraisons/services/livraison.service';
+import { ArticleService } from '../articles/services/article.service';
+import { ClientService } from '../clients/services/client.service';
+import { FamilleService } from '../familles/services/famille.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { Chart, registerables, ChartType } from 'chart.js';
 
+// Register Chart.js components
 Chart.register(...registerables);
 
-interface DashboardStats {
-  totalClients: number;
-  totalArticles: number;
-  totalUsers: number;
-  todayDeliveries: number;
-  totalRevenue: number;
-  monthlyRevenue: number;
-  totalAuditLogs: number;
-  todayAuditLogs: number;
-}
-
-interface Task {
-  id: string;
-  title: string;
-  priority: 'high' | 'medium' | 'low';
-  status: 'pending' | 'completed';
-  dueDate: Date;
-}
-
-interface AuditLog {
-  id: string;
-  userId: string;
-  user?: {
-    username: string;
-    email: string;
-  };
-  numeroLivraison: string;
-  action: string;
-  timestamp: Date;
-}
+// Register French locale
+registerLocaleData(localeFr);
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LayoutComponent],
+  imports: [CommonModule, FormsModule, LayoutComponent],
   templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css']
+  styleUrls: ['./dashboard.component.css'],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'fr' }
+  ]
 })
-export class DashboardComponent implements OnInit {
-  stats: DashboardStats = {
-    totalClients: 0,
-    totalArticles: 0,
-    totalUsers: 0,
-    todayDeliveries: 0,
-    totalRevenue: 0,
-    monthlyRevenue: 0,
-    totalAuditLogs: 0,
-    todayAuditLogs: 0
+export class DashboardComponent implements OnInit, OnDestroy {
+  // Key metrics
+  totalArticles: number = 0;
+  totalDeliveries: number = 0;
+  totalRevenueHT: number = 0;
+  totalRevenueTTC: number = 0;
+  totalClients: number = 0;
+  
+  // Charts
+  deliveriesChart: Chart | null = null;
+  stockDistributionChart: Chart | null = null;
+  
+  // Chart configuration
+  activeDeliveryChartType: ChartType = 'bar';
+  activeStockChartType: ChartType = 'pie';
+  deliveryChartData: any = { labels: [], data: [] };
+  stockChartData: any = { labels: [], data: [] };
+  
+  // Tables data
+  topClients: any[] = [];
+  lowStockArticles: any[] = [];
+  
+  // User data
+  currentUser: any;
+  userAuditLogs: any[] = [];
+  
+  // UI state
+  today = new Date();
+  isRefreshing = false;
+  
+  // Loading states
+  loading = {
+    metrics: true,
+    deliveriesChart: true,
+    stockChart: true,
+    topClients: true,
+    lowStock: true,
+    auditLogs: true
   };
-
-  todayLivraisons: Livraison[] = [];
-  lowStockArticles: Article[] = [];
-  recentClients: Client[] = [];
-  recentAuditLogs: AuditLog[] = [];
-  loading = true;
-  error: string | null = null;
-  currentUser: any = null;
-  currentDate: string = '';
-  isAdmin: boolean = false;
-
-  tasks: Task[] = [
-    {
-      id: '1',
-      title: 'Vérifier les stocks faibles',
-      priority: 'high',
-      status: 'pending',
-      dueDate: new Date()
-    },
-    {
-      id: '2',
-      title: 'Traiter les commandes en attente',
-      priority: 'medium',
-      status: 'pending',
-      dueDate: new Date(Date.now() + 86400000)
-    },
-    {
-      id: '3',
-      title: 'Mise à jour des prix articles',
-      priority: 'low',
-      status: 'completed',
-      dueDate: new Date(Date.now() - 86400000)
-    }
-  ];
+  
+  private destroy$ = new Subject<void>();
 
   constructor(
     private authService: AuthService,
-    private router: Router,
+    private auditService: AuditService,
     private livraisonService: LivraisonService,
-    private clientService: ClientService,
     private articleService: ArticleService,
-    private auditService: AuditService
+    private clientService: ClientService,
+    private familleService: FamilleService
   ) {}
 
   ngOnInit(): void {
+    // Get current user info
     this.currentUser = this.authService.getCurrentUser();
-    this.isAdmin = this.currentUser?.role === 'Admin' || this.currentUser?.role === 'admin';
-    this.currentDate = new Date().toLocaleDateString('fr-FR', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-    this.loadDashboardData();
-  }
-
-  loadDashboardData(): void {
-    this.loading = true;
     
-    const loadTasks: Promise<void>[] = [
-      this.loadStats(),
-      this.loadTodayLivraisons(),
-      this.loadLowStockArticles(),
-      this.loadRecentClients()
-    ];
-
-    // Add audit logs loading for admin users
-    if (this.isAdmin) {
-      loadTasks.push(
-        this.loadAuditStats(),
-        this.loadRecentAuditLogs()
-      );
+    // Load dashboard data
+    this.loadKeyMetrics();
+    this.loadDeliveriesChart();
+    this.loadStockDistributionChart();
+    this.loadTopClients();
+    this.loadUserAuditLogs();
+  }
+  
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    // Destroy charts to prevent memory leaks
+    if (this.deliveriesChart) {
+      this.deliveriesChart.destroy();
     }
-    
-    // Load all data concurrently
-    Promise.all(loadTasks).then(() => {
-      this.loading = false;
-      setTimeout(() => {
-        this.initializeCharts();
-      }, 100);
-    }).catch(error => {
-      console.error('Error loading dashboard data:', error);
-      this.error = 'Erreur lors du chargement des données du tableau de bord';
-      this.loading = false;
-    });
+    if (this.stockDistributionChart) {
+      this.stockDistributionChart.destroy();
+    }
   }
 
-  private async loadStats(): Promise<void> {
-    try {
-      const [clients, articles, livraisons] = await Promise.all([
-        this.clientService.getClients().toPromise(),
-        this.articleService.getArticles().toPromise(),
-        this.livraisonService.getLivraisons().toPromise()
-      ]);
+  // UI interaction methods
+  refreshDashboard(): void {
+    this.isRefreshing = true;
+    
+    // Reset loading states
+    Object.keys(this.loading).forEach(key => {
+      this.loading[key as keyof typeof this.loading] = true;
+    });
+    
+    // Reload all data
+    this.loadKeyMetrics();
+    this.loadDeliveriesChart();
+    this.loadStockDistributionChart();
+    this.loadTopClients();
+    this.loadUserAuditLogs();
+    
+    // Update current date
+    this.today = new Date();
+    
+    // Reset refresh state after a short delay to show animation
+    setTimeout(() => {
+      this.isRefreshing = false;
+    }, 800);
+  }
+  
+  printDashboard(): void {
+    window.print();
+  }
 
-      this.stats.totalClients = clients?.length || 0;
-      this.stats.totalArticles = articles?.length || 0;
-      this.stats.totalUsers = 5; // Default value since UserService doesn't have getUsers method
+  changeDeliveryChartType(type: ChartType): void {
+    if (this.activeDeliveryChartType === type) return;
+    
+    this.activeDeliveryChartType = type;
+    if (this.deliveryChartData.labels.length > 0) {
+      this.renderDeliveriesChart(this.deliveryChartData.labels, this.deliveryChartData.data);
+    }
+  }
 
-      // Calculate revenue and today's deliveries
-      const today = new Date();
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      
-      let todayDeliveries = 0;
-      let totalRevenue = 0;
-      let monthlyRevenue = 0;
-
-      livraisons?.forEach((livraison: Livraison) => {
-        const livraisonDate = new Date(livraison.date);
-        totalRevenue += livraison.totalTtc;
+  changeStockChartType(type: ChartType): void {
+    if (this.activeStockChartType === type) return;
+    
+    this.activeStockChartType = type;
+    if (this.stockChartData.labels.length > 0) {
+      this.renderStockDistributionChart(this.stockChartData.labels, this.stockChartData.data);
+    }
+  }
+  
+  // Data loading methods (keep existing implementation)
+  loadKeyMetrics(): void {
+    // Count total articles
+    this.articleService.getArticles().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (articles) => {
+        this.totalArticles = articles.length;
+        this.loading.metrics = false;
+      },
+      error: (err) => {
+        console.error('Error fetching articles:', err);
+        this.loading.metrics = false;
+      }
+    });
+    
+    // Get current month's deliveries
+    const currentDate = new Date();
+    const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    
+    this.livraisonService.getLivraisons().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (livraisons) => {
+        // Filter for current month
+        const currentMonthLivraisons = livraisons.filter(livraison => 
+          new Date(livraison.date) >= firstDayOfMonth
+        );
         
-        if (this.isSameDay(livraisonDate, today)) {
-          todayDeliveries++;
+        this.totalDeliveries = currentMonthLivraisons.length;
+        
+        // Calculate total revenue
+        this.totalRevenueHT = currentMonthLivraisons.reduce((sum, livraison) => 
+          sum + (livraison.totalHt || 0), 0);
+        this.totalRevenueTTC = currentMonthLivraisons.reduce((sum, livraison) => 
+          sum + (livraison.totalTtc || 0), 0);
+      },
+      error: (err) => {
+        console.error('Error fetching livraisons:', err);
+        this.loading.metrics = false;
+      }
+    });
+    
+    // Count total clients
+    this.clientService.getClients().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (clients) => {
+        this.totalClients = clients.length;
+      },
+      error: (err) => {
+        console.error('Error fetching clients:', err);
+        this.loading.metrics = false;
+      }
+    });
+  }
+  
+  loadDeliveriesChart(): void {
+    // Modify to store chart data for reuse when changing chart types
+    this.loading.deliveriesChart = true;
+    
+    // Get last 30 days
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+    
+    this.livraisonService.getLivraisons().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (livraisons) => {
+        // Filter for last 30 days and group by date
+        const filteredLivraisons = livraisons.filter(
+          livraison => new Date(livraison.date) >= thirtyDaysAgo
+        );
+        
+        // Create a map for the last 30 days (all days should appear even if no deliveries)
+        const deliveriesByDay = new Map();
+        
+        // Initialize all days with 0 deliveries
+        for (let i = 0; i < 30; i++) {
+          const date = new Date();
+          date.setDate(today.getDate() - (29 - i));
+          const dateStr = date.toISOString().split('T')[0];
+          deliveriesByDay.set(dateStr, 0);
         }
         
-        if (livraisonDate >= startOfMonth) {
-          monthlyRevenue += livraison.totalTtc;
-        }
-      });
-
-      this.stats.todayDeliveries = todayDeliveries;
-      this.stats.totalRevenue = totalRevenue;
-      this.stats.monthlyRevenue = monthlyRevenue;
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
+        // Count deliveries for each day
+        filteredLivraisons.forEach(livraison => {
+          const dateStr = new Date(livraison.date).toISOString().split('T')[0];
+          if (deliveriesByDay.has(dateStr)) {
+            deliveriesByDay.set(dateStr, deliveriesByDay.get(dateStr) + 1);
+          }
+        });
+        
+        // Prepare chart data
+        const labels = Array.from(deliveriesByDay.keys()).map(dateStr => {
+          const date = new Date(dateStr);
+          return `${date.getDate()}/${date.getMonth() + 1}`;
+        });
+        const data = Array.from(deliveriesByDay.values());
+        
+        // Store data for chart type changes
+        this.deliveryChartData = { labels, data };
+        
+        // Create chart
+        this.renderDeliveriesChart(labels, data);
+        this.loading.deliveriesChart = false;
+      },
+      error: (err) => {
+        console.error('Error fetching deliveries for chart:', err);
+        this.loading.deliveriesChart = false;
+      }
+    });
   }
-
-  private async loadAuditStats(): Promise<void> {
-    try {
-      const auditLogs = await this.auditService.getAuditLogs().toPromise();
-      const today = new Date();
-      
-      this.stats.totalAuditLogs = auditLogs?.length || 0;
-      this.stats.todayAuditLogs = auditLogs?.filter(log => 
-        this.isSameDay(new Date(log.timestamp), today)
-      ).length || 0;
-    } catch (error) {
-      console.error('Error loading audit stats:', error);
-    }
-  }
-
-  private async loadRecentAuditLogs(): Promise<void> {
-    try {
-      const auditLogs = await this.auditService.getAuditLogs().toPromise();
-      
-      // Sort by timestamp descending and take the first 10
-      this.recentAuditLogs = auditLogs
-        ?.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 10)
-        .map(log => ({
-          id: log.id,
-          userId: log.userId,
-          user: log.user,
-          numeroLivraison: log.numeroLivraison,
-          action: log.action,
-          timestamp: new Date(log.timestamp)
-        })) || [];
-    } catch (error) {
-      console.error('Error loading recent audit logs:', error);
-    }
-  }
-
-  private async loadTodayLivraisons(): Promise<void> {
-    try {
-      const livraisons = await this.livraisonService.getLivraisons().toPromise();
-      const today = new Date();
-      
-      this.todayLivraisons = livraisons?.filter(livraison => 
-        this.isSameDay(new Date(livraison.date), today)
-      ) || [];
-    } catch (error) {
-      console.error('Error loading today livraisons:', error);
-    }
-  }
-
-  private async loadLowStockArticles(): Promise<void> {
-    try {
-      const articles = await this.articleService.getArticles().toPromise();
-      // Since stockMin doesn't exist in Article model, we'll use a default minimum stock of 10
-      this.lowStockArticles = articles?.filter(article => 
-        article.stock <= 10
-      ).slice(0, 5) || [];
-    } catch (error) {
-      console.error('Error loading low stock articles:', error);
-    }
-  }
-
-  private async loadRecentClients(): Promise<void> {
-    try {
-      const clients = await this.clientService.getClients().toPromise();
-      this.recentClients = clients?.slice(-5) || [];
-    } catch (error) {
-      console.error('Error loading recent clients:', error);
-    }
-  }
-
-  private isSameDay(date1: Date, date2: Date): boolean {
-    return date1.toDateString() === date2.toDateString();
-  }
-
-  private initializeCharts(): void {
-    this.createRevenueChart();
-    this.createDeliveryChart();
-    if (this.isAdmin) {
-      this.createAuditChart();
-    }
-  }
-
-  private createRevenueChart(): void {
-    const ctx = document.getElementById('revenueChart') as HTMLCanvasElement;
+  
+  renderDeliveriesChart(labels: string[], data: number[]): void {
+    const ctx = document.getElementById('deliveriesChart') as HTMLCanvasElement;
     if (ctx) {
-      new Chart(ctx, {
-        type: 'line',
+      // Destroy previous chart instance if it exists
+      if (this.deliveriesChart) {
+        this.deliveriesChart.destroy();
+      }
+      
+      const gradient = ctx.getContext('2d')?.createLinearGradient(0, 0, 0, 300);
+      if (gradient) {
+        gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)');
+        gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+      }
+
+      this.deliveriesChart = new Chart(ctx, {
+        type: this.activeDeliveryChartType,
         data: {
-          labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+          labels: labels,
           datasets: [{
-            label: 'Chiffre d\'affaires',
-            data: [12000, 19000, 15000, 25000, 22000, 30000],
-            borderColor: '#4CAF50',
-            backgroundColor: 'rgba(76, 175, 80, 0.1)',
-            tension: 0.4,
-            fill: true
+            label: 'Livraisons par jour',
+            data: data,
+            backgroundColor: this.activeDeliveryChartType === 'line' ? gradient : 'rgba(59, 130, 246, 0.7)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            tension: 0.3,
+            pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+            pointRadius: this.activeDeliveryChartType === 'line' ? 3 : 0,
+            fill: this.activeDeliveryChartType === 'line'
           }]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: {
               display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(17, 24, 39, 0.8)',
+              padding: 12,
+              titleFont: {
+                size: 14,
+                weight: 'bold'
+              },
+              bodyFont: {
+                size: 13
+              },
+              displayColors: false,
+              callbacks: {
+                title: (items) => `Date: ${items[0].label}`,
+                label: (item) => `${item.parsed.y} livraison${item.parsed.y !== 1 ? 's' : ''}`
+              }
             }
           },
           scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: '#f0f0f0'
-              }
-            },
             x: {
               grid: {
                 display: false
+              },
+              ticks: {
+                color: '#64748b',
+                font: {
+                  size: 11
+                }
+              }
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(226, 232, 240, 0.5)'
+              },
+              border: {
+                dash: [5, 5]
+              },
+              ticks: {
+                precision: 0,
+                color: '#64748b',
+                font: {
+                  size: 11
+                }
               }
             }
           }
@@ -313,153 +354,216 @@ export class DashboardComponent implements OnInit {
       });
     }
   }
-
-  private createDeliveryChart(): void {
-    const ctx = document.getElementById('deliveryChart') as HTMLCanvasElement;
+  
+  loadStockDistributionChart(): void {
+    // Modify to store chart data for reuse when changing chart types
+    this.loading.stockChart = true;
+    
+    // Get all articles and families
+    this.articleService.getArticles().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (articles) => {
+        this.familleService.getFamilles().pipe(
+          takeUntil(this.destroy$)
+        ).subscribe({
+          next: (familles) => {
+            // Group articles by family
+            const articlesByFamily = new Map();
+            
+            // Initialize families with 0 articles
+            familles.forEach(famille => {
+              articlesByFamily.set(famille.nom, 0);
+            });
+            
+            // Count articles in each family
+            articles.forEach(article => {
+              if (article.famille && article.famille.nom) {
+                const familyName = article.famille.nom;
+                if (articlesByFamily.has(familyName)) {
+                  articlesByFamily.set(familyName, articlesByFamily.get(familyName) + 1);
+                } else {
+                  articlesByFamily.set(familyName, 1);
+                }
+              }
+            });
+            
+            // Prepare chart data
+            const labels = Array.from(articlesByFamily.keys());
+            const data = Array.from(articlesByFamily.values());
+            
+            // Store data for chart type changes
+            this.stockChartData = { labels, data };
+            
+            // Create chart
+            this.renderStockDistributionChart(labels, data);
+            this.loading.stockChart = false;
+          },
+          error: (err) => {
+            console.error('Error fetching families:', err);
+            this.loading.stockChart = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching articles for chart:', err);
+        this.loading.stockChart = false;
+      }
+    });
+  }
+  
+  renderStockDistributionChart(labels: string[], data: number[]): void {
+    const ctx = document.getElementById('stockDistributionChart') as HTMLCanvasElement;
     if (ctx) {
-      new Chart(ctx, {
-        type: 'doughnut',
+      // Destroy previous chart instance if it exists
+      if (this.stockDistributionChart) {
+        this.stockDistributionChart.destroy();
+      }
+      
+      const colors = [
+        '#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6',
+        '#ec4899', '#6366f1', '#14b8a6', '#f43f5e', '#84cc16'
+      ];
+
+      this.stockDistributionChart = new Chart(ctx, {
+        type: this.activeStockChartType,
         data: {
-          labels: ['Livré', 'En attente', 'Annulé'],
+          labels: labels,
           datasets: [{
-            data: [65, 25, 10],
-            backgroundColor: ['#4CAF50', '#FF9800', '#F44336'],
-            borderWidth: 0
+            data: data,
+            backgroundColor: colors.map(color => color + 'cc'),
+            borderColor: colors,
+            borderWidth: 2,
+            hoverOffset: 15
           }]
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: {
             legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-    }
-  }
-
-  private createAuditChart(): void {
-    const ctx = document.getElementById('auditChart') as HTMLCanvasElement;
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-          datasets: [{
-            label: 'Activités Audit',
-            data: [12, 19, 8, 15, 22, 6, 4],
-            backgroundColor: 'rgba(156, 39, 176, 0.8)',
-            borderColor: '#9C27B0',
-            borderWidth: 1
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                color: '#f0f0f0'
+              position: 'right',
+              labels: {
+                usePointStyle: true,
+                padding: 15,
+                font: {
+                  size: 11
+                }
               }
             },
-            x: {
-              grid: {
-                display: false
+            tooltip: {
+              backgroundColor: 'rgba(17, 24, 39, 0.8)',
+              padding: 12,
+              titleFont: {
+                size: 14,
+                weight: 'bold'
+              },
+              bodyFont: {
+                size: 13
+              },
+              callbacks: {
+                label: (item) => `${item.label}: ${item.raw} article${item.raw !== 1 ? 's' : ''} (${Math.round(item.parsed * 100 / data.reduce((a, b) => a + b, 0))}%)`
               }
             }
-          }
+          },
+          //radius: this.activeStockChartType === 'doughnut' ? '60%' : undefined
         }
       });
     }
   }
-
-  toggleTask(taskId: string): void {
-    const task = this.tasks.find(t => t.id === taskId);
-    if (task) {
-      task.status = task.status === 'pending' ? 'completed' : 'pending';
+  
+  loadTopClients(): void {
+    this.loading.topClients = true;
+    
+    // First get all clients to create a mapping of client IDs to names
+    this.clientService.getClients().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (clients) => {
+        // Create a map of client IDs to client names for efficient lookup
+        const clientMap = new Map(
+          clients.map(client => [client.id, client.nom || 'Inconnu'])
+        );
+        
+        // Now get all deliveries
+        this.livraisonService.getLivraisons().pipe(
+          takeUntil(this.destroy$)
+        ).subscribe({
+          next: (livraisons) => {
+            // Group deliveries by client
+            const deliveriesByClient = new Map();
+            
+            livraisons.forEach(livraison => {
+              if (livraison && livraison.clientId) {
+                const clientId = livraison.clientId;
+                const clientName = clientMap.get(clientId) || 'Inconnu';
+                
+                if (!deliveriesByClient.has(clientId)) {
+                  deliveriesByClient.set(clientId, { 
+                    id: clientId, 
+                    nom: clientName, 
+                    count: 0, 
+                    totalAmount: 0 
+                  });
+                }
+                
+                const client = deliveriesByClient.get(clientId);
+                client.count++;
+                client.totalAmount += livraison.totalTtc || 0;
+                deliveriesByClient.set(clientId, client);
+              }
+            });
+            
+            // Sort clients by delivery count and take top 5
+            this.topClients = Array.from(deliveriesByClient.values())
+              .sort((a, b) => b.count - a.count)
+              .slice(0, 5);
+            
+            this.loading.topClients = false;
+          },
+          error: (err) => {
+            console.error('Error fetching deliveries:', err);
+            this.loading.topClients = false;
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Error fetching clients:', err);
+        this.loading.topClients = false;
+      }
+    });
+  }
+  
+ 
+  
+  loadUserAuditLogs(): void {
+    this.loading.auditLogs = true;
+    
+    if (this.currentUser && this.currentUser.id) {
+      // Fetch last 5 audit logs for current user
+      this.auditService.getAuditLogs().pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: (logs) => {
+          this.userAuditLogs = logs;
+          this.loading.auditLogs = false;
+        },
+        error: (err) => {
+          console.error('Error fetching user audit logs:', err);
+          this.loading.auditLogs = false;
+        }
+      });
+    } else {
+      this.loading.auditLogs = false;
     }
   }
-
-  getPriorityColor(priority: string): string {
-    switch (priority) {
-      case 'high': return '#F44336';
-      case 'medium': return '#FF9800';
-      case 'low': return '#4CAF50';
-      default: return '#757575';
-    }
-  }
-
-  getActionColor(action: string): string {
-    switch (action.toLowerCase()) {
-      case 'create':
-      case 'created':
-      case 'add':
-        return '#4CAF50';
-      case 'update':
-      case 'updated':
-      case 'modify':
-        return '#FF9800';
-      case 'delete':
-      case 'deleted':
-      case 'remove':
-        return '#F44336';
-      case 'view':
-      case 'viewed':
-      case 'read':
-        return '#2196F3';
-      default:
-        return '#757575';
-    }
-  }
-
-  getGreeting(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Bonjour';
-    if (hour < 18) return 'Bon après-midi';
-    return 'Bonsoir';
-  }
-
-  navigateToLivraisons(): void {
-    this.router.navigate(['/livraisons']);
-  }
-
-  navigateToClients(): void {
-    this.router.navigate(['/clients']);
-  }
-
-  navigateToArticles(): void {
-    this.router.navigate(['/articles']);
-  }
-
-  navigateToAuditLogs(): void {
-    this.router.navigate(['/audit-logs']);
-  }
-
-  formatDate(date: Date): string {
-    return date.toLocaleDateString('fr-FR');
-  }
-
-  formatDateTime(date: Date): string {
-    return date.toLocaleString('fr-FR');
-  }
-
-  getTimeAgo(date: Date): string {
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    if (diffMins < 1) return 'À l\'instant';
-    if (diffMins < 60) return `Il y a ${diffMins} min`;
-    if (diffHours < 24) return `Il y a ${diffHours}h`;
-    if (diffDays < 7) return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
-    return this.formatDate(date);
+  
+  // Format number as currency
+  formatCurrency(value: number): string {
+    return new Intl.NumberFormat('fr-FR', { 
+      style: 'currency', 
+      currency: 'MAD',
+      minimumFractionDigits: 2
+    }).format(value);
   }
 }
