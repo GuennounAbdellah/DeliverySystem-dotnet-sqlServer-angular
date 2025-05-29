@@ -45,7 +45,7 @@ export class FamilleListComponent implements OnInit {
     this.loading = true;
     this.familleService.getFamilles().subscribe({
       next: (familles) => {
-        this.familles = familles;
+        this.familles = familles.sort((a, b) => a.nom.localeCompare(b.nom));
         this.loading = false;
       },
       error: (err) => {

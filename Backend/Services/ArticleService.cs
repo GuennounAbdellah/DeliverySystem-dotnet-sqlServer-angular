@@ -120,6 +120,7 @@ namespace Backend.Services
             if (!string.IsNullOrEmpty(articleRequest.Designation))
                 article.Designation = articleRequest.Designation;
             
+            article.Stock_Minimum = articleRequest.Stock_Minimum;
             article.Stock = articleRequest.Stock;
             article.PuHt = articleRequest.PuHt;
             article.MontantHt = articleRequest.MontantHt;

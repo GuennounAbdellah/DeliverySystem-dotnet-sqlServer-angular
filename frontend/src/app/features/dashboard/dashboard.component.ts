@@ -69,6 +69,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     auditLogs: true
   };
   
+  // Add these properties near your other class properties
+  lowStockPage = 1;
+  lowStockPageSize = 5;
+  hasMoreLowStock = false;
+  allLowStockArticles: any[] = []; // To store all filtered articles
+  
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -89,6 +95,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadDeliveriesChart();
     this.loadStockDistributionChart();
     this.loadTopClients();
+    this.loadLowStockArticles(); // Add this line
     this.loadUserAuditLogs();
   }
   
@@ -119,6 +126,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadDeliveriesChart();
     this.loadStockDistributionChart();
     this.loadTopClients();
+    this.loadLowStockArticles(); // Add this line
     this.loadUserAuditLogs();
     
     // Update current date
@@ -128,10 +136,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.isRefreshing = false;
     }, 800);
-  }
-  
-  printDashboard(): void {
-    window.print();
   }
 
   changeDeliveryChartType(type: ChartType): void {
@@ -534,18 +538,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
     });
   }
   
- 
+  auditLogsPage = 1;
+  auditLogsPageSize = 5;
+  hasMoreAuditLogs = false;
   
-  loadUserAuditLogs(): void {
-    this.loading.auditLogs = true;
+  loadUserAuditLogs(loadMore: boolean = false): void {
+    this.loading.auditLogs = loadMore ? false : true;
     
     if (this.currentUser && this.currentUser.id) {
-      // Fetch last 5 audit logs for current user
-      this.auditService.getAuditLogs().pipe(
+      // If not loading more, reset to page 1
+      if (!loadMore) {
+        this.auditLogsPage = 1;
+        this.userAuditLogs = [];
+      }
+      
+      // Fetch audit logs with pagination
+      this.auditService.getAuditLogs(this.auditLogsPage, this.auditLogsPageSize).pipe(
         takeUntil(this.destroy$)
       ).subscribe({
         next: (logs) => {
-          this.userAuditLogs = logs;
+          // If loading more, append to existing logs, otherwise replace
+          this.userAuditLogs = loadMore ? [...this.userAuditLogs, ...logs] : logs;
+          // Determine if there are more logs to load
+          this.hasMoreAuditLogs = logs.length === this.auditLogsPageSize;
           this.loading.auditLogs = false;
         },
         error: (err) => {
@@ -558,6 +573,14 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
   
+  // Add new method to load more audit logs
+  loadMoreUserAuditLogs(): void {
+    if (!this.loading.auditLogs && this.hasMoreAuditLogs) {
+      this.auditLogsPage++;
+      this.loadUserAuditLogs(true);
+    }
+  }
+  
   // Format number as currency
   formatCurrency(value: number): string {
     return new Intl.NumberFormat('fr-FR', { 
@@ -565,5 +588,63 @@ export class DashboardComponent implements OnInit, OnDestroy {
       currency: 'MAD',
       minimumFractionDigits: 2
     }).format(value);
+  }
+
+  loadLowStockArticles(loadMore: boolean = false): void {
+    this.loading.lowStock = loadMore ? false : true;
+    
+    // If not loading more, reset to page 1
+    if (!loadMore) {
+      this.lowStockPage = 1;
+      this.lowStockArticles = [];
+      this.allLowStockArticles = [];
+    }
+
+    this.articleService.getArticles().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (articles) => {
+        // Filter articles with stock below minimum threshold if we're on first page
+        if (this.lowStockPage === 1) {
+          this.allLowStockArticles = articles
+            .filter(article => article.stock < article.stock_Minimum)
+            .sort((a, b) => {
+              if (a.stock === 0 && b.stock !== 0) return -1;
+              if (b.stock === 0 && a.stock !== 0) return 1;
+              
+              const ratioA = a.stock / a.stock_Minimum;
+              const ratioB = b.stock / b.stock_Minimum;
+              return ratioA - ratioB;
+            });
+        }
+        
+        // Calculate start and end indices for the current page
+        const startIndex = (this.lowStockPage - 1) * this.lowStockPageSize;
+        const endIndex = startIndex + this.lowStockPageSize;
+        
+        // Get the items for the current page
+        const currentPageItems = this.allLowStockArticles.slice(startIndex, endIndex);
+        
+        // If loading more, append to existing items, otherwise replace
+        this.lowStockArticles = loadMore ? [...this.lowStockArticles, ...currentPageItems] : currentPageItems;
+        
+        // Check if there are more items to load
+        this.hasMoreLowStock = endIndex < this.allLowStockArticles.length;
+        
+        this.loading.lowStock = false;
+      },
+      error: (err) => {
+        console.error('Error fetching low stock articles:', err);
+        this.loading.lowStock = false;
+      }
+    });
+  }
+
+  // Add new method to load more low stock articles
+  loadMoreLowStockArticles(): void {
+    if (!this.loading.lowStock && this.hasMoreLowStock) {
+      this.lowStockPage++;
+      this.loadLowStockArticles(true);
+    }
   }
 }

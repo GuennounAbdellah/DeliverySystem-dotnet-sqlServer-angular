@@ -49,7 +49,7 @@ export class ArticleListComponent implements OnInit {
     this.loading = true;
     this.articleService.getArticles().subscribe({
       next: (articles) => {
-        this.articles = articles;
+        this.articles = articles.sort((a, b) => a.designation.localeCompare(b.designation));
         this.loading = false;
       },
       error: (err) => {

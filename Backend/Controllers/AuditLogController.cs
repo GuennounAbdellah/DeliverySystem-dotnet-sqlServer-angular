@@ -19,12 +19,18 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllAuditLogs()
+        public async Task<IActionResult> GetAllAuditLogs(int page = 1, int pageSize = 10)
         {
-            Console.WriteLine("Fetching all audit logs...");
+            // Add input validation
+            if (page <= 0 || pageSize <= 0)
+                return BadRequest("Page and page size must be greater than zero.");
+
+            // Log the request
+            Console.WriteLine($"Fetching audit logs for page {page} with page size {pageSize}");
+
             try
             {
-                var logs = await _auditLogService.GetAllAuditLogs();
+                var logs = await _auditLogService.GetAllAuditLogs(page, pageSize);
                 return Ok(logs);
             }
             catch (Exception ex)
@@ -33,6 +39,7 @@ namespace Backend.Controllers
                 return StatusCode(500, "An error occurred while fetching audit logs.");
             }
         }
+
 
         [HttpPost] 
         public async Task<IActionResult> CreateAuditLog([FromBody] CreateAuditLogDto auditLog)

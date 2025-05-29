@@ -16,7 +16,7 @@ export class AuditService {
     return this.http.post<any>(this.apiUrl, auditData);
   }
 
-  getAuditLogs(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  getAuditLogs(page: number = 1, pageSize: number = 10): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}?page=${page}&pageSize=${pageSize}`);
   }
 }

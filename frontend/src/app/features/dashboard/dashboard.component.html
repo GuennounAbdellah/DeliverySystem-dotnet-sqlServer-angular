@@ -257,11 +257,11 @@
               <td>
                 <span class="stock-status" [ngClass]="{
                   'critical': (article.stock || article.quantite) === 0,
-                  'warning': (article.stock || article.quantite) > 0 && (article.stock || article.quantite) < (article.stock_Minimum || article.stockMinimum) * 0.5,
-                  'low': (article.stock || article.quantite) >= (article.stock_Minimum || article.stockMinimum) * 0.5
+                  'warning': (article.stock || article.quantite) > 0 && (article.stock || article.quantite) < (article.stock_Minimum || article.stock_Minimum) * 0.5,
+                  'low': (article.stock || article.quantite) >= (article.stock_Minimum || article.stock_Minimum) * 0.5
                 }">
                   {{(article.stock || article.quantite) === 0 ? 'Rupture' : 
-                    (article.stock || article.quantite) < (article.stock_Minimum || article.stockMinimum) * 0.5 ? 'Critique' : 'Bas'}}
+                    (article.stock || article.quantite) < (article.stock_Minimum || article.stock_Minimum) * 0.5 ? 'Critique' : 'Bas'}}
                 </span>
               </td>
             </tr>
@@ -275,7 +275,7 @@
     </div>
 
     <!-- User Audit Logs Section -->
-    <section class="audit-logs-section">
+    <section *ngIf="currentUser.isAdmin === true" class="audit-logs-section">
       <div class="table-header">
         <h2 class="section-title">
           <i class="fas fa-history"></i>
@@ -305,10 +305,28 @@
             }"></i>
           </div>
           <div class="audit-log-content">
-            <span class="audit-log-action">{{log.action}}</span>
-            <span class="audit-log-entity">{{log.livraisonNumber}}</span>
-            <span class="audit-log-date">{{log.date | date:'dd/MM/yyyy HH:mm'}}</span>
+            <div class="audit-log-main">
+              <span class="audit-log-action">{{log.action}}</span>
+              <span class="audit-log-entity">Livraison N° {{log.numeroLivraison || log.livraisonNumber}}</span>
+            </div>
+            <div class="audit-log-meta">
+              <span class="audit-log-user">
+                <i class="fas fa-user"></i>
+                {{log.username}}
+              </span>
+              <span class="audit-log-date">
+                <i class="fas fa-clock"></i>
+                {{log.date || log.timestamp | date:'dd/MM/yyyy HH:mm'}}
+              </span>
+            </div>
           </div>
+        </div>
+        
+        <div *ngIf="hasMoreAuditLogs && !loading.auditLogs" class="load-more-container">
+          <button class="load-more-btn" (click)="loadMoreUserAuditLogs()">
+            <i class="fas fa-plus-circle"></i>
+            Charger plus d'actions
+          </button>
         </div>
       </div>
       <div *ngIf="!loading.auditLogs && userAuditLogs.length === 0" class="empty-state">

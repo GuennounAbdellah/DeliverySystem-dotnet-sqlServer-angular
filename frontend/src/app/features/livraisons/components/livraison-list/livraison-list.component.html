@@ -37,10 +37,16 @@
             <td>
               <button class="edit-btn" 
                       (click)="livraisonDialog.openEdit(livraison)"
-                      [disabled]="!canEditLivraisons()">Modifier</button>
+                      [disabled]="!canEditLivraisons()" 
+                      title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
               <button class="delete-btn" 
                       (click)="livraison.id && deleteLivraison(livraison.id)"
-                      [disabled]="!canDeleteLivraisons()">Suprimer</button>
+                      [disabled]="!canDeleteLivraisons()"
+                      title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>

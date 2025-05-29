@@ -40,7 +40,7 @@ export class UserListComponent implements OnInit {
     this.loading = true;
     this.userService.getAllUsers().subscribe({
       next: (data) => {
-        this.users = data;
+        this.users = data.sort((a, b) => a.username.localeCompare(b.username));
         this.loading = false;
       },
       error: (error) => {

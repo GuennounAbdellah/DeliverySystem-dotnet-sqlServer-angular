@@ -42,14 +42,20 @@
             <td>{{ article.famille.nom }}</td>
             <td>{{ article.puHt }}</td>
             <td>{{ article.montantHt }}</td>
-            <td>
+            <td class="actions">
               <button class="edit-btn"
                      (click)="articleDialog.openEdit(article)"
                      [disabled]="!canEditArticles()"
-                     >Modifier</button>
+                     title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              
               <button class="delete-btn" 
                       (click)="deleteArticle(article.id)" 
-                      [disabled]="!canDeleteArticles()">Suprimer</button>
+                      [disabled]="!canDeleteArticles()"
+                      title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>

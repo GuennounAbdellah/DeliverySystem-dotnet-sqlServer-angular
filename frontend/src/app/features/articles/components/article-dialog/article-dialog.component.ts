@@ -84,23 +84,23 @@ export class ArticleDialogComponent implements OnInit {
     this.resetForm();
   }
   
-  openEdit(article: Article): void {
+  openEdit(a: Article): void {
     if (this.unites.length === 0 || this.familles.length === 0) {
       this.loadUniteAndFamilleData();
     }
     this.showDialog = true;
     this.editMode = true;
-    this.originalArticleId = article.id;
+    this.originalArticleId = a.id;
     
     this.article = {
-      reference: article.reference,
-      designation: article.designation,
-      stock: article.stock,
-      stock_Minimum: article.stock_Minimum,  
-      uniteId: article.uniteId,
-      familleId: article.familleId,
-      puHt: article.puHt,
-      montantHt: article.montantHt
+      reference: a.reference,
+      designation: a.designation,
+      stock: a.stock,
+      stock_Minimum: a.stock_Minimum,  
+      uniteId: a.uniteId,
+      familleId: a.familleId,
+      puHt: a.puHt,
+      montantHt: a.montantHt
     };
     
     this.error = null;
@@ -130,6 +130,7 @@ export class ArticleDialogComponent implements OnInit {
     
     if (this.editMode && this.originalArticleId) {
       const articleToUpdate = this.article as ArticleCreateRequest;
+      console.log('Article to update:', articleToUpdate);
       this.articleService.updateArticle(this.originalArticleId, articleToUpdate).subscribe({
         next: (updatedArticle) => {
           console.log(updatedArticle)

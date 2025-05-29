@@ -44,7 +44,7 @@ export class UniteListComponent implements OnInit {
     this.loading = true;
     this.uniteService.getUnites().subscribe({
       next: (unites) => {
-        this.unites = unites;
+        this.unites = unites.sort((a, b) => a.nom.localeCompare(b.nom));
         this.loading = false;
       },
       error: (err) => {

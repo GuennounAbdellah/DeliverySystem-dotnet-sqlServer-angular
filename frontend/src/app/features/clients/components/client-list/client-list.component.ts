@@ -44,7 +44,7 @@ export class ClientListComponent implements OnInit {
     this.clientService.getClients().subscribe({
       next: (clients) => {
 
-        this.clients = clients;
+        this.clients = clients.sort((a, b) => a.nom.localeCompare(b.nom));
         this.loading = false;
 
       },
