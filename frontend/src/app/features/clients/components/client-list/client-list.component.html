@@ -32,12 +32,16 @@
             <td>{{ client.telephone }}</td>
             <td>{{ client.fax }}</td>
             <td>{{ client.adresse }}</td>
-            <td >
+            <td class="actions">
               <button class="edit-btn" 
                       (click)="clientDialog.openEdit(client)" 
-                      [disabled]="!canEditClients()">Modifier</button>
+                      [disabled]="!canEditClients()" title="Modifier">
+                      <i class="fas fa-edit"></i>
+                    </button>
               <button class="delete-btn" (click)="deleteClient(client.id)" 
-                      [disabled]="!canDeleteClients()">Suprimer</button>
+                      [disabled]="!canDeleteClients()" title="Supprimer">
+                      <i class="fas fa-trash"></i>
+                    </button>
             </td>
           </tr>
         </tbody>

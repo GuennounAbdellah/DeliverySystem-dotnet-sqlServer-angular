@@ -95,7 +95,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.loadDeliveriesChart();
     this.loadStockDistributionChart();
     this.loadTopClients();
-    this.loadLowStockArticles(); // Add this line
+    this.loadLowStockArticles();
     this.loadUserAuditLogs();
   }
   
@@ -573,7 +573,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
   }
   
-  // Add new method to load more audit logs
   loadMoreUserAuditLogs(): void {
     if (!this.loading.auditLogs && this.hasMoreAuditLogs) {
       this.auditLogsPage++;

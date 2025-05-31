@@ -112,6 +112,7 @@
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 15px;
+  font-size: 14px;
 }
 
 .details-table th,
@@ -119,27 +120,90 @@
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
+  vertical-align: middle;
 }
 
 .details-table th {
   background-color: #f8f9fa;
+  font-weight: 600;
+  text-align: center;
+}
+
+.details-table tbody td {
+  text-align: center;
+}
+
+.details-table tbody td input {
+  width: 100%;
+  border: none;
+  padding: 4px;
+  text-align: center;
+  background: transparent;
+}
+
+/* Column width adjustments */
+.details-table th:nth-child(3),
+.details-table td:nth-child(3) {
+  width: 25%;
+  min-width: 200px;
+}
+
+.details-table th:nth-child(4),
+.details-table td:nth-child(4) {
+  width: 8%;
+  min-width: 70px;
+}
+
+.details-table tbody td:nth-child(3) input {
+  text-align: left;
+}
+
+.details-table tbody td input:focus {
+  outline: 1px solid #4CAF50;
+  background-color: #f9f9f9;
 }
 
 .details-table tfoot {
   font-weight: bold;
+  background-color: #f8f9fa;
+}
+
+.details-table tfoot td {
+  border-top: 1px solid #b4b1b1;
+}
+
+.details-table tfoot input {
+  width: 80px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  text-align: center;
 }
 
 .total-label {
   text-align: right;
+  font-weight: 600;
 }
 
-.delete-btn {
-  background-color: #dc3545;
-  color: white;
+.btn {
   border: none;
   border-radius: 4px;
-  padding: 5px 10px;
+  padding: 5px 8px;
   cursor: pointer;
+  font-size: 12px;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #c82333;
+}
+
+.btn-sm {
+  padding: 3px 6px;
 }
 
 .dialog-footer {
@@ -166,7 +230,7 @@
   cursor: pointer;
 }
 
-.top{
+.top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -174,22 +238,24 @@
 }
 
 .top-left,
-.top-right{
+.top-right {
   width: 45%;
 }
-.mode-options{
+
+.mode-options {
   display: flex;
   align-items: center;
-  
 }
-.mode-option{
+
+.mode-option {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 3px;
-  margin: 0 10px ;
+  margin: 0 10px;
   padding: 10px 5px 15px;
 }
+
 .mode-option input[type="radio"] {
   accent-color: #3b82f6;
   width: 15px;

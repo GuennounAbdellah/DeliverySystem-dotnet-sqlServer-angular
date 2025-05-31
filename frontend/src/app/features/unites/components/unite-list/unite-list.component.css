@@ -101,6 +101,7 @@ h1 {
 /* Button group layout in table */
 .actions {
   display: flex;
+  justify-content: flex-start;
   gap: 8px;
 }
 

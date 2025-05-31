@@ -28,13 +28,17 @@
           <tr *ngFor="let unite of unites">
             <td>{{ unite.nom }}</td>
             <td>{{ unite.abreviation }}</td>
-            <td>
+            <td class="actions">
               <button class="edit-btn" 
                       (click)="uniteDialog.openEdit(unite)" 
-                      [disabled]="!canEditUnites()">Modifier</button>
+                      [disabled]="!canEditUnites()" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
               <button class="delete-btn" 
                       (click)="deleteUnite(unite.id)" 
-                      [disabled]="!canDeleteUnites()">Supprimer</button>
+                      [disabled]="!canDeleteUnites()" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>

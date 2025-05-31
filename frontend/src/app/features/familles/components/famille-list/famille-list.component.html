@@ -27,11 +27,15 @@
           <tr *ngFor="let famille of familles">
             <td>{{ famille.nom }}</td>
             <td>{{ famille.tva }}</td>
-            <td>
+            <td class="actions">
               <button class="edit-btn" (click)="familleDialog.openEdit(famille)" 
-                      [disabled]="!canEditFamilles()">Modifier</button>
+                      [disabled]="!canEditFamilles()" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
               <button class="delete-btn" (click)="deleteFamille(famille.id)" 
-                      [disabled]="!canDeleteFamilles()">Suprimer</button>
+                      [disabled]="!canDeleteFamilles()" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
             </td>
           </tr>
         </tbody>

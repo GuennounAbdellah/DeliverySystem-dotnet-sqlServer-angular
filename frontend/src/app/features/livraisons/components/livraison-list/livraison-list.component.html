@@ -34,7 +34,7 @@
             <td>{{ livraison.date | date:'dd/MM/yyyy' }}</td>
             <td>{{ livraison.totalHt }}</td>
             <td>{{ livraison.totalTtc}}</td>
-            <td>
+            <td class="actions">
               <button class="edit-btn" 
                       (click)="livraisonDialog.openEdit(livraison)"
                       [disabled]="!canEditLivraisons()" 
