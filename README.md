@@ -139,10 +139,3 @@ The following diagram illustrates the main entities and their relationships with
 *   **Article Management:** Includes stock tracking, association with families and units.
 *   **Audit Logging:** Tracks user actions within the system.
 *   **Responsive UI:** Some components show considerations for responsiveness (e.g., dashboard, tables).
-
-## Further Development / Notes
-
-*   The frontend `README.md` ([`frontend/README.md`](project/frontend/README.md)) provides more specific Angular CLI commands for building, testing, etc.
-*   The project includes Entity Framework migrations for database schema management.
-*   Error handling is present in both backend services and frontend components.
-
