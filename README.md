@@ -146,6 +146,3 @@ The following diagram illustrates the main entities and their relationships with
 *   The project includes Entity Framework migrations for database schema management.
 *   Error handling is present in both backend services and frontend components.
 
----
-
-This README provides a good starting point. You can add more specific details, contribution guidelines, or deployment instructions as needed.
